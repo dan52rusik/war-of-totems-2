@@ -106,12 +106,12 @@ public class GameManager : MonoBehaviour
     }
     public void check_game_status()
     {
-        if (player_hp < 0)
+        if (player_hp <= 0)
         {
             game_status = 1;
             end_game();
         }
-        if(enemy_hp < 0)
+        if(enemy_hp <= 0)
         {
             game_status = 2;
             end_game();
@@ -543,15 +543,15 @@ public class GameManager : MonoBehaviour
         float training;
         if (player)
         {
-            if (training_queue.Count <= 4)
+            if (player_troops_queue.Count < 20) // Лимит юнитов на поле
             {
-                training = od.troop_training_times[tier + (player_age - 1) * 3];
-                troop_queue tr = new troop_queue();
-                tr.age = player_age;
-                tr.tier = tier;
-                money -= od.troop_costs[(tr.age - 1) * 3 + tr.tier];
-                tr.training = od.troop_training_times[(player_age - 1) * 3 + tier];
-                training_queue.Add(tr);
+                int cost = od.troop_costs[(player_age - 1) * 3 + tier];
+                if (money >= cost)
+                {
+                    money -= cost;
+                    spawn_player_troop(tier, player_age);
+                    Debug.Log($"[GM] Мгновенный спавн Tier {tier+1}");
+                }
             }
         }
         else

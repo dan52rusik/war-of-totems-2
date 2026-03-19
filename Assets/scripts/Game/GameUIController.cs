@@ -31,9 +31,18 @@ public class GameUIController : MonoBehaviour
     public TextMeshProUGUI levelNameText;
     public TextMeshProUGUI speedText;
 
+    public void BindGameManager(GameManager gameManager)
+    {
+        gm = gameManager;
+    }
+
     void Start()
     {
-        gm = FindObjectOfType<GameManager>();
+        if (gm == null)
+        {
+            gm = FindFirstObjectByType<GameManager>();
+        }
+
         lm = FindObjectOfType<LevelManager>();
         
         if (gm == null) Debug.LogError("[UI] GameManager не найден!");
@@ -84,9 +93,9 @@ public class GameUIController : MonoBehaviour
         if (gm == null) return;
 
         // Обновляем тексты
-        if (moneyText != null) moneyText.text = "💰 " + gm.money;
-        if (xpText != null) xpText.text = "⭐ " + gm.xp;
-        if (hpText != null) hpText.text = "❤ " + Mathf.Max(0, gm.player_hp);
+        if (moneyText != null) moneyText.text = gm.money.ToString();
+        if (xpText != null) xpText.text = gm.xp.ToString();
+        if (hpText != null) hpText.text = Mathf.Max(0, gm.player_hp).ToString();
         if (ageText != null) ageText.text = "ЭПОХА " + gm.player_age;
 
         UpdateButtonsInteractable();
@@ -102,34 +111,56 @@ public class GameUIController : MonoBehaviour
 
     public void SpawnTroop(int tier)
     {
-        if (gm == null || gm.od == null) return;
+        if (gm == null) return;
 
-        int cost = gm.od.troop_costs[(gm.player_age - 1) * 3 + (tier > 2 ? 2 : tier)]; // Фикс индекса для Tier 4
-        
-        if (gm.money >= cost)
+        bool spawned = false;
+
+        // Привязываем tier к существующим командным методам,
+        // чтобы всегда использовать одну и ту же логику проверок/стоимости.
+        switch (tier)
         {
-            // Вызываем оригинальный метод спавна
-            gm.dispatch_spawn_troop(tier, true);
-            Debug.Log($"[UI] Спавн юнита Tier {tier+1}");
+            case 0:
+                spawned = gm.command_spawn_troop_tier_1();
+                break;
+            case 1:
+                spawned = gm.command_spawn_troop_tier_2();
+                break;
+            case 2:
+                spawned = gm.command_spawn_troop_tier_3();
+                break;
+            case 3:
+                spawned = gm.command_spawn_troop_tier_4();
+                break;
+            default:
+                Debug.LogWarning($"[UI] Неизвестный tier юнита: {tier}");
+                return;
+        }
+
+        if (!spawned)
+        {
+            Debug.Log("[UI] Не удалось заспавнить юнита (скорее всего, не хватает денег или слот в очереди занят).");
         }
         else
         {
-            Debug.Log("[UI] Недостаточно денег!");
+            Debug.Log($"[UI] Спавн юнита Tier {tier + 1}");
         }
     }
 
     public void BuySlot()
     {
-        gm.buy_slot_player();
+        if (gm == null) return;
+        gm.command_buy_slot();
     }
 
     public void UpgradeAge()
     {
-        gm.upgrade_age_player();
+        if (gm == null) return;
+        gm.command_upgrade_age();
     }
 
     public void UseAbility()
     {
+        if (gm == null) return;
         gm.command_use_ability();
     }
 

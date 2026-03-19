@@ -65,7 +65,7 @@ public class MainMenuController : MonoBehaviour
     public void UpdateUI()
     {
         int coins = PlayerPrefs.GetInt("PlayerCoins", 0);
-        if (totalCoinsText != null) totalCoinsText.text = "💰 " + coins;
+        if (totalCoinsText != null) totalCoinsText.text = "Монеты: " + coins;
 
         UpdateShopUI();
     }
@@ -140,7 +140,7 @@ public class MainMenuController : MonoBehaviour
             TextMeshProUGUI txt = btnObj.GetComponentInChildren<TextMeshProUGUI>();
             if (txt != null)
             {
-                txt.text = level.levelNumber + ". " + level.levelName + (isCompleted ? " ✅" : "");
+                txt.text = level.levelNumber + ". " + level.levelName + (isCompleted ? " [пройден]" : "");
                 Debug.Log($"[Menu] Создана кнопка для уровня {level.levelNumber}: {level.levelName}");
             }
             else

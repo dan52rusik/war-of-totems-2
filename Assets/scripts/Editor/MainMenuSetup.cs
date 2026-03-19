@@ -86,7 +86,7 @@ public class MainMenuSetup : EditorWindow
         Button exitBtn = CreateStyledButton(btnContainer.transform, "ExitBtn", "ВЫХОД", 300, 80, new Color(0.4f, 0.15f, 0.15f));
 
         // Монеты в углу
-        TextMeshProUGUI coinsText = CreateTMPText(mainPanel.transform, "TotalCoinsText", "💰 0", 28, new Color(1f, 0.85f, 0.2f), 300);
+        TextMeshProUGUI coinsText = CreateTMPText(mainPanel.transform, "TotalCoinsText", "Монеты: 0", 28, new Color(1f, 0.85f, 0.2f), 300);
         coinsText.GetComponent<RectTransform>().anchorMin = new Vector2(1, 1);
         coinsText.GetComponent<RectTransform>().anchorMax = new Vector2(1, 1);
         coinsText.GetComponent<RectTransform>().anchoredPosition = new Vector2(-150, -50);

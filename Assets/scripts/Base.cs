@@ -43,10 +43,12 @@ public class Base : MonoBehaviour
         if (IsPlayerBase)
         {
             game_manager.player_hp -= damage;
+            game_manager.check_game_status();
         }
         else
         {
             game_manager.enemy_hp -= damage;
+            game_manager.check_game_status();
         }
     }
 

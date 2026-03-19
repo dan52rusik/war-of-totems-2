@@ -32,6 +32,15 @@ public class LevelManager : MonoBehaviour
 
     void Start()
     {
+        if (gameHUD == null)
+        {
+            gameHUD = FindFirstObjectByType<GameUIController>();
+            if (gameHUD == null)
+            {
+                Debug.LogWarning("[LevelManager] Game HUD не назначен и не найден в сцене.");
+            }
+        }
+
         if (environmentPrefab == null)
         {
             Debug.LogError("[LevelManager] Environment Prefab не назначен! Перетащите GameInstance из Assets/GameObjects/ в поле Environment Prefab в Inspector.");
@@ -118,7 +127,11 @@ public class LevelManager : MonoBehaviour
 
         // Передать GM в HUD и PlayerController
         // Настроить HUD
-        if (gameHUD != null) gameHUD.Initialize(levelData, currentGameManager.player_hp);
+        if (gameHUD != null)
+        {
+            gameHUD.BindGameManager(currentGameManager);
+            gameHUD.Initialize(levelData, currentGameManager.player_hp);
+        }
 
         // Найти PlayerController и передать ему GM
         PlayerController pc = FindObjectOfType<PlayerController>();
@@ -184,7 +197,7 @@ public class LevelManager : MonoBehaviour
     {
         if (Camera.main == null) return;
         Camera.main.transform.position = currentEnvironment.transform.position
-            + new Vector3(0f, 1.5f, -10.99119f);
+            + new Vector3(0f, 0.0f, -10.99119f);
     }
 
     void HideOldUI()
@@ -226,8 +239,8 @@ public class LevelManager : MonoBehaviour
     /// </summary>
     IEnumerator CheckGameStatus()
     {
-        // Ждём 2 секунды перед началом проверок, чтобы GameManager полностью инициализировался
-        yield return new WaitForSeconds(2f);
+        // Ждём совсем чуть-чуть для инициализации
+        yield return new WaitForSeconds(0.1f);
 
         while (State == LevelState.Playing)
         {
@@ -235,6 +248,7 @@ public class LevelManager : MonoBehaviour
 
             if (currentGameManager == null) yield break;
 
+            // Основной путь — через game_status из GameManager
             if (currentGameManager.game_status == 2) // Враг уничтожен
             {
                 OnLevelWon();
@@ -243,6 +257,19 @@ public class LevelManager : MonoBehaviour
             else if (currentGameManager.game_status == 1) // Игрок проиграл
             {
                 OnLevelLost();
+                yield break;
+            }
+
+            // Резервный путь — по прямой проверке HP, если по какой‑то причине
+            // game_status не был обновлён.
+            if (currentGameManager.player_hp <= 0)
+            {
+                OnLevelLost();
+                yield break;
+            }
+            if (currentGameManager.enemy_hp <= 0)
+            {
+                OnLevelWon();
                 yield break;
             }
         }

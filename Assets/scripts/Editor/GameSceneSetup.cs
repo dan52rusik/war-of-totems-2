@@ -158,20 +158,20 @@ public class GameSceneSetup : EditorWindow
         topLayout.childForceExpandHeight = true;
 
         // Тексты верхней панели
-        TextMeshProUGUI moneyText = CreateTMPText(topBar.transform, "MoneyText", "💰 175", 24, new Color(1f, 0.85f, 0.2f), 180);
-        TextMeshProUGUI xpText = CreateTMPText(topBar.transform, "XpText", "⭐ 0", 24, new Color(0.5f, 0.8f, 1f), 150);
-        TextMeshProUGUI playerHpText = CreateTMPText(topBar.transform, "PlayerHpText", "❤️ 500", 24, new Color(0.3f, 1f, 0.4f), 160);
+        TextMeshProUGUI moneyText = CreateTMPText(topBar.transform, "MoneyText", "175", 24, new Color(1f, 0.85f, 0.2f), 180);
+        TextMeshProUGUI xpText = CreateTMPText(topBar.transform, "XpText", "0", 24, new Color(0.5f, 0.8f, 1f), 150);
+        TextMeshProUGUI playerHpText = CreateTMPText(topBar.transform, "PlayerHpText", "500", 24, new Color(0.3f, 1f, 0.4f), 160);
 
         // Центральный блок — Эпоха
         TextMeshProUGUI ageText = CreateTMPText(topBar.transform, "AgeText", "Эпоха 1", 28, Color.white, 200);
         ageText.alignment = TextAlignmentOptions.Center;
         ageText.fontStyle = FontStyles.Bold;
 
-        TextMeshProUGUI enemyHpText = CreateTMPText(topBar.transform, "EnemyHpText", "💀 500", 24, new Color(1f, 0.35f, 0.35f), 160);
+        TextMeshProUGUI enemyHpText = CreateTMPText(topBar.transform, "EnemyHpText", "500", 24, new Color(1f, 0.35f, 0.35f), 160);
 
         // Кнопки управления в TopBar
         TextMeshProUGUI speedText;
-        Button pauseBtn = CreateStyledButton(topBar.transform, "PauseBtn", "⏸️", 60, 50,
+        Button pauseBtn = CreateStyledButton(topBar.transform, "PauseBtn", "Пауза", 60, 50,
             new Color(0.3f, 0.3f, 0.4f), out _);
         Button speedBtn = CreateStyledButton(topBar.transform, "SpeedBtn", "x1", 80, 50,
             new Color(0.2f, 0.35f, 0.5f), out speedText);
@@ -216,7 +216,7 @@ public class GameSceneSetup : EditorWindow
         Button[] troopButtons = new Button[4];
         TextMeshProUGUI[] troopCostTexts = new TextMeshProUGUI[4];
 
-        string[] troopNames = { "⚔️ Tier 1", "🏹 Tier 2", "🛡️ Tier 3", "⭐ Tier 4" };
+        string[] troopNames = { "Tier 1", "Tier 2", "Tier 3", "Tier 4" };
         Color[] troopColors = {
             new Color(0.2f, 0.45f, 0.2f),    // зелёный
             new Color(0.2f, 0.35f, 0.55f),   // синий
@@ -251,7 +251,7 @@ public class GameSceneSetup : EditorWindow
         Button[] turretButtons = new Button[3];
         TextMeshProUGUI[] turretCostTexts = new TextMeshProUGUI[3];
 
-        string[] turretNames = { "🗼 T1", "🗼 T2", "🗼 T3" };
+        string[] turretNames = { "T1", "T2", "T3" };
         Color turretColor = new Color(0.35f, 0.25f, 0.15f);
         string[] turretCosts = { "100", "200", "500" };
 
@@ -273,46 +273,46 @@ public class GameSceneSetup : EditorWindow
 
         TextMeshProUGUI slotCostDummy, ageCostDummy;
         Button buySlotButton = CreateUnitButton(actionBtnParent, "BuySlotBtn",
-            "📦 Слот", "1000", new Color(0.15f, 0.3f, 0.35f), out slotCostDummy);
+            "+ Слот", "1000", new Color(0.15f, 0.3f, 0.35f), out slotCostDummy);
         TextMeshProUGUI slotsText = slotCostDummy; // будем переиспользовать текст стоимости для слотов
 
         Button upgradeAgeButton = CreateUnitButton(actionBtnParent, "UpgradeAgeBtn",
-            "⬆️ Эпоха", "4000 XP", new Color(0.1f, 0.2f, 0.5f), out ageCostDummy);
+            "Эпоха", "4000 XP", new Color(0.1f, 0.2f, 0.5f), out ageCostDummy);
         TextMeshProUGUI upgradeAgeCostText = ageCostDummy;
 
         TextMeshProUGUI abilityCostDummy;
         Button abilityButton = CreateUnitButton(actionBtnParent, "AbilityBtn",
-            "💥 Способность", "ГОТОВО", new Color(0.5f, 0.15f, 0.15f), out abilityCostDummy);
+            "Скилл", "ГОТОВО", new Color(0.5f, 0.15f, 0.15f), out abilityCostDummy);
         TextMeshProUGUI abilityCooldownText = abilityCostDummy;
 
         // ===================== WIN PANEL =====================
         GameObject winPanel = CreateResultPanel(canvasObj.transform, "WinPanel",
-            "🏆 ПОБЕДА!", new Color(0.1f, 0.3f, 0.1f, 0.95f));
+            "ПОБЕДА!", new Color(0.1f, 0.3f, 0.1f, 0.95f));
         Transform winCenter = winPanel.transform.Find("CenterBlock");
         TextMeshProUGUI winCoinsText = winCenter.Find("SubText").GetComponent<TextMeshProUGUI>();
 
         Button winNextBtn = CreateStyledButton(winCenter.Find("ButtonContainer"),
-            "NextLevelBtn", "▶ Следующий уровень", 300, 55,
+            "NextLevelBtn", "Следующий уровень", 300, 55,
             new Color(0.15f, 0.4f, 0.15f), out _);
         Button winMenuBtn = CreateStyledButton(winCenter.Find("ButtonContainer"),
-            "MenuBtn", "🏠 Меню", 200, 55,
+            "MenuBtn", "Меню", 200, 55,
             new Color(0.3f, 0.3f, 0.4f), out _);
         Button winRetryBtn = CreateStyledButton(winCenter.Find("ButtonContainer"),
-            "RetryBtn", "🔄 Заново", 200, 55,
+            "RetryBtn", "Заново", 200, 55,
             new Color(0.3f, 0.25f, 0.1f), out _);
 
         winPanel.SetActive(false);
 
         // ===================== LOSE PANEL =====================
         GameObject losePanel = CreateResultPanel(canvasObj.transform, "LosePanel",
-            "💀 ПОРАЖЕНИЕ!", new Color(0.35f, 0.08f, 0.08f, 0.95f));
+            "ПОРАЖЕНИЕ!", new Color(0.35f, 0.08f, 0.08f, 0.95f));
         Transform loseCenter = losePanel.transform.Find("CenterBlock");
 
         Button loseRetryBtn = CreateStyledButton(loseCenter.Find("ButtonContainer"),
-            "RetryBtn", "🔄 Попробовать снова", 300, 55,
+            "RetryBtn", "Попробовать снова", 300, 55,
             new Color(0.4f, 0.15f, 0.15f), out _);
         Button loseMenuBtn = CreateStyledButton(loseCenter.Find("ButtonContainer"),
-            "MenuBtn", "🏠 Меню", 200, 55,
+            "MenuBtn", "Меню", 200, 55,
             new Color(0.3f, 0.3f, 0.4f), out _);
 
         losePanel.SetActive(false);
@@ -347,13 +347,13 @@ public class GameSceneSetup : EditorWindow
 
         // ===================== PAUSE PANEL =====================
         GameObject pausePanel = CreateResultPanel(canvasObj.transform, "PausePanel",
-            "⏸️ ПАУЗА", new Color(0.1f, 0.1f, 0.2f, 0.95f));
+            "ПАУЗА", new Color(0.1f, 0.1f, 0.2f, 0.95f));
 
         Button pauseResumeBtn = CreateStyledButton(pausePanel.transform.Find("ButtonContainer"),
-            "ResumeBtn", "▶ Продолжить", 250, 55,
+            "ResumeBtn", "Продолжить", 250, 55,
             new Color(0.15f, 0.35f, 0.15f), out _);
         Button pauseMenuBtn = CreateStyledButton(pausePanel.transform.Find("ButtonContainer"),
-            "PauseMenuBtn", "🏠 Меню", 200, 55,
+            "PauseMenuBtn", "Меню", 200, 55,
             new Color(0.3f, 0.3f, 0.4f), out _);
 
         pausePanel.SetActive(false);
