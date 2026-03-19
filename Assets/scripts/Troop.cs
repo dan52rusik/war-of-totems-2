@@ -60,10 +60,7 @@ public class Troop : MonoBehaviour
         {
             spriteR.sprite = data.troop_sprites[id];
         }
-        else
-        {
-            Debug.LogWarning($"[Troop] Спрайт не найден для id={id}. Массив troop_sprites: {(data.troop_sprites != null ? data.troop_sprites.Length : 0)} элементов. Нужно 16.");
-        }
+        // Не спамим варнинг — спрайты могут быть не назначены
     }
 
     

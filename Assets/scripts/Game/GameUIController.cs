@@ -81,15 +81,58 @@ public class GameUIController : MonoBehaviour
 
     public void ShowResult(bool win, int reward = 0)
     {
-        if (win)
+        string panelName = win ? "WinPanel" : "LosePanel";
+        GameObject panel = win ? winPanel : losePanel;
+
+        // --- Уровень 1: уже есть ссылка ---
+        if (panel == null)
         {
-            if (winPanel != null) winPanel.SetActive(true);
-            if (winCoinsText != null) winCoinsText.text = "+" + reward + " МОНЕТ";
+            // --- Уровень 2: ищем среди дочерних Canvas ---
+            Canvas myCanvas = GetComponentInParent<Canvas>();
+            if (myCanvas != null)
+                panel = FindChildByName(myCanvas.transform, panelName);
+        }
+
+        if (panel == null)
+        {
+            // --- Уровень 3: ищем в сцене ---
+            panel = GameObject.Find(panelName);
+        }
+
+        if (panel == null)
+        {
+            // --- Уровень 4: перебираем все Canvas ---
+            foreach (var c in FindObjectsOfType<Canvas>(true))
+            {
+                var found = FindChildByName(c.transform, panelName);
+                if (found != null) { panel = found; break; }
+            }
+        }
+
+        if (panel != null)
+        {
+            panel.SetActive(true);
+            Debug.Log($"[UI] Панель {panelName} показана!");
+
+            if (win && winCoinsText != null)
+                winCoinsText.text = "+" + reward + " МОНЕТ";
         }
         else
         {
-            if (losePanel != null) losePanel.SetActive(true);
+            Debug.LogError($"[UI] Панель {panelName} НЕ найдена!");
         }
+    }
+
+    /// <summary>Рекурсивный поиск дочернего объекта по имени</summary>
+    GameObject FindChildByName(Transform parent, string name)
+    {
+        foreach (Transform child in parent)
+        {
+            if (child.name == name) return child.gameObject;
+            var found = FindChildByName(child, name);
+            if (found != null) return found;
+        }
+        return null;
     }
 
     public void ShowPause(bool paused)

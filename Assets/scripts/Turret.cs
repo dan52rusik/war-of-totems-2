@@ -213,10 +213,6 @@ public class Turret : MonoBehaviour
         {
             spriteR.sprite = data.turret_sprites[id];
         }
-        else
-        {
-            Debug.LogWarning($"[Turret] Спрайт не найден для id={id}. Массив turret_sprites: {(data.turret_sprites != null ? data.turret_sprites.Length : 0)} элементов.");
-        }
     }
 
     void Start()

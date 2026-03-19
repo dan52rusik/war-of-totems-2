@@ -126,11 +126,22 @@ public class LevelManager : MonoBehaviour
         AlignCamera();
 
         // Передать GM в HUD и PlayerController
+        // Автопоиск GameUIController, если ссылка потерялась
+        if (gameHUD == null)
+        {
+            gameHUD = FindObjectOfType<GameUIController>();
+            if (gameHUD != null)
+                Debug.Log("[LM] GameUIController найден автоматически!");
+            else
+                Debug.LogWarning("[LM] GameUIController НЕ найден! Окна победы/поражения не будут работать.");
+        }
+
         // Настроить HUD
         if (gameHUD != null)
         {
             gameHUD.BindGameManager(currentGameManager);
             gameHUD.Initialize(levelData, currentGameManager.player_hp);
+            Debug.Log("[LM] HUD привязан к GameManager");
         }
 
         // Найти PlayerController и передать ему GM
@@ -280,13 +291,22 @@ public class LevelManager : MonoBehaviour
         State = LevelState.Won;
         Time.timeScale = 0f;
         OnStateChanged?.Invoke(State);
+        Debug.Log("[LM] === ПОБЕДА! ===");
+
+        // Гарантированно ищем HUD
+        EnsureHUD();
 
         if (gameHUD != null)
         {
-            gameHUD.ShowResult(true, levelData.coinsReward);
+            gameHUD.ShowResult(true, levelData != null ? levelData.coinsReward : 100);
+            Debug.Log("[LM] Окно победы показано через HUD");
+        }
+        else
+        {
+            // Резервный путь — ищем панель напрямую
+            ShowPanelDirect("WinPanel");
         }
 
-        // Сохраняем прогресс
         SaveProgress();
     }
 
@@ -295,11 +315,68 @@ public class LevelManager : MonoBehaviour
         State = LevelState.Lost;
         Time.timeScale = 0f;
         OnStateChanged?.Invoke(State);
+        Debug.Log("[LM] === ПОРАЖЕНИЕ! ===");
+
+        EnsureHUD();
 
         if (gameHUD != null)
         {
             gameHUD.ShowResult(false, 0);
+            Debug.Log("[LM] Окно поражения показано через HUD");
         }
+        else
+        {
+            ShowPanelDirect("LosePanel");
+        }
+    }
+
+    /// <summary>
+    /// Гарантированный поиск GameUIController
+    /// </summary>
+    void EnsureHUD()
+    {
+        if (gameHUD != null) return;
+
+        // Ищем через FindObjectOfType
+        gameHUD = FindObjectOfType<GameUIController>();
+        if (gameHUD != null)
+        {
+            Debug.Log("[LM] HUD найден через FindObjectOfType");
+            return;
+        }
+
+        // Ищем по имени канваса
+        GameObject hudCanvas = GameObject.Find("GameHUDCanvas");
+        if (hudCanvas != null)
+        {
+            gameHUD = hudCanvas.GetComponent<GameUIController>();
+            if (gameHUD != null)
+            {
+                Debug.Log("[LM] HUD найден через GameHUDCanvas");
+                return;
+            }
+        }
+
+        Debug.LogWarning("[LM] HUD НЕ найден! Покажем панель напрямую.");
+    }
+
+    /// <summary>
+    /// Резервный способ показать панель победы/поражения, если HUD не найден
+    /// </summary>
+    void ShowPanelDirect(string panelName)
+    {
+        // Ищем по всем корневым объектам, включая неактивные
+        foreach (var canvas in FindObjectsOfType<Canvas>(true))
+        {
+            Transform panel = canvas.transform.Find(panelName);
+            if (panel != null)
+            {
+                panel.gameObject.SetActive(true);
+                Debug.Log($"[LM] Панель {panelName} показана напрямую!");
+                return;
+            }
+        }
+        Debug.LogError($"[LM] Панель {panelName} не найдена нигде в сцене!");
     }
 
     void SaveProgress()
