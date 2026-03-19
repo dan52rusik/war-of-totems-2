@@ -9,11 +9,11 @@ using UnityEngine.SceneManagement;
 /// </summary>
 public class LevelManager : MonoBehaviour
 {
-    [Header("Ссылки")]
+    [Header("UI Ссылки")]
     public LevelData levelData;
     public GameObject environmentPrefab;  // GameInstance prefab
     public Data dataObject;
-    public GameHUD gameHUD;
+    public GameUIController gameHUD;
 
     [Header("Настройки")]
     public float gameSpeed = 1f;
@@ -117,10 +117,8 @@ public class LevelManager : MonoBehaviour
         AlignCamera();
 
         // Передать GM в HUD и PlayerController
-        if (gameHUD != null)
-        {
-            gameHUD.Initialize(currentGameManager, levelData);
-        }
+        // Настроить HUD
+        if (gameHUD != null) gameHUD.Initialize(levelData, currentGameManager.player_hp);
 
         // Найти PlayerController и передать ему GM
         PlayerController pc = FindObjectOfType<PlayerController>();

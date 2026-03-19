@@ -107,11 +107,11 @@ public class GameSceneSetup : EditorWindow
             Debug.Log("[Setup] Создана Main Camera.");
         }
 
-        // ===================== CANVAS =====================
-        GameObject canvasObj = new GameObject("GameCanvas");
+        // ===================== CANVAS (HUD) =====================
+        GameObject canvasObj = new GameObject("GameHUDCanvas");
         Canvas canvas = canvasObj.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-        canvas.sortingOrder = 100;
+        canvas.sortingOrder = 50;
 
         CanvasScaler scaler = canvasObj.AddComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
@@ -119,7 +119,8 @@ public class GameSceneSetup : EditorWindow
         scaler.matchWidthOrHeight = 0.5f;
 
         canvasObj.AddComponent<GraphicRaycaster>();
-        GameHUD gameHUD = canvasObj.AddComponent<GameHUD>();
+        GameUIController uiController = canvasObj.AddComponent<GameUIController>();
+        Undo.RegisterCreatedObjectUndo(canvasObj, "Create GameHUD Canvas");
         Undo.RegisterCreatedObjectUndo(canvasObj, "Create Canvas");
 
         // EventSystem (если нет)
@@ -316,6 +317,34 @@ public class GameSceneSetup : EditorWindow
 
         losePanel.SetActive(false);
 
+        // ===================== WIRE UI EVENTS =====================
+        // Подключаем кнопки спавна
+        AddButtonEvent(troopButtons[0], uiController, "OnSpawnTier1");
+        AddButtonEvent(troopButtons[1], uiController, "OnSpawnTier2");
+        AddButtonEvent(troopButtons[2], uiController, "OnSpawnTier3");
+        AddButtonEvent(troopButtons[3], uiController, "OnSpawnTier4");
+
+        // Подключаем действия
+        AddButtonEvent(buySlotButton, uiController, "BuySlot");
+        AddButtonEvent(upgradeAgeButton, uiController, "UpgradeAge");
+        AddButtonEvent(abilityButton, uiController, "UseAbility");
+
+        // Подключаем панели победы/поражения через LevelManager
+        LevelManager lm = levelManagerObj.GetComponent<LevelManager>();
+        AddButtonEvent(winNextBtn, lm, "OnNextLevelButton");
+        AddButtonEvent(winMenuBtn, lm, "OnMainMenuButton");
+        AddButtonEvent(winRetryBtn, lm, "OnRetryButton");
+        AddButtonEvent(loseRetryBtn, lm, "OnRetryButton");
+        AddButtonEvent(loseMenuBtn, lm, "OnMainMenuButton");
+
+        // Привязываем тексты в UIController
+        uiController.moneyText = moneyText;
+        uiController.xpText = xpText;
+        uiController.hpText = playerHpText;
+        uiController.ageText = ageText;
+
+        Debug.Log("[Setup] UI События успешно подключены!");
+
         // ===================== PAUSE PANEL =====================
         GameObject pausePanel = CreateResultPanel(canvasObj.transform, "PausePanel",
             "⏸️ ПАУЗА", new Color(0.1f, 0.1f, 0.2f, 0.95f));
@@ -352,32 +381,29 @@ public class GameSceneSetup : EditorWindow
 
         // ===================== WIRE EVERYTHING =====================
 
-        // GameHUD
-        gameHUD.moneyText = moneyText;
-        gameHUD.xpText = xpText;
-        gameHUD.playerHpText = playerHpText;
-        gameHUD.enemyHpText = enemyHpText;
-        gameHUD.ageText = ageText;
-        gameHUD.levelNameText = levelNameText;
-        gameHUD.speedText = speedText;
-        gameHUD.abilityButton = abilityButton;
-        gameHUD.abilityCooldownText = abilityCooldownText;
-        gameHUD.troopButtons = troopButtons;
-        gameHUD.troopCostTexts = troopCostTexts;
-        gameHUD.turretButtons = turretButtons;
-        gameHUD.turretCostTexts = turretCostTexts;
-        gameHUD.buySlotButton = buySlotButton;
-        gameHUD.slotsText = slotsText;
-        gameHUD.upgradeAgeButton = upgradeAgeButton;
-        gameHUD.upgradeAgeCostText = upgradeAgeCostText;
-        gameHUD.winPanel = winPanel;
-        gameHUD.winCoinsText = winCoinsText;
-        gameHUD.losePanel = losePanel;
-        gameHUD.pausePanel = pausePanel;
-        gameHUD.messageText = messageText;
+        // GameUIController assignments
+        uiController.moneyText = moneyText;
+        uiController.xpText = xpText;
+        uiController.hpText = playerHpText;
+        uiController.ageText = ageText;
+        uiController.levelNameText = levelNameText;
+        uiController.speedText = speedText;
+        uiController.winPanel = winPanel;
+        uiController.winCoinsText = winCoinsText;
+        uiController.losePanel = losePanel;
+        uiController.pausePanel = pausePanel;
+        uiController.troopButtons = troopButtons;
+        uiController.turretButtons = turretButtons;
+        uiController.buySlotButton = buySlotButton;
+        uiController.upgradeAgeButton = upgradeAgeButton;
+        uiController.abilityButton = abilityButton;
+
+        // Кнопки паузы и скорости
+        AddButtonEvent(pauseBtn, lm, "OnPauseButton");
+        AddButtonEvent(speedBtn, lm, "OnSpeedUpButton");
 
         // LevelManager
-        levelManager.gameHUD = gameHUD;
+        levelManager.gameHUD = uiController;
 
         // Wire button OnClick events
         // Troop buttons → PlayerController
