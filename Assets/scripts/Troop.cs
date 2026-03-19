@@ -152,19 +152,19 @@ public class Troop : MonoBehaviour
 
         Color[] agePalette =
         {
-            new Color(0.92f, 0.86f, 0.72f),
-            new Color(0.84f, 0.86f, 0.95f),
-            new Color(0.96f, 0.82f, 0.76f),
-            new Color(0.74f, 0.86f, 0.96f),
-            new Color(0.94f, 0.78f, 1f)
+            new Color(0.64f, 0.69f, 0.7f),
+            new Color(0.58f, 0.68f, 0.72f),
+            new Color(0.54f, 0.64f, 0.68f),
+            new Color(0.5f, 0.6f, 0.64f),
+            new Color(0.44f, 0.56f, 0.62f)
         };
 
         Color[] rolePalette =
         {
-            new Color(1.08f, 0.98f, 0.9f),
-            new Color(0.86f, 1.02f, 1.1f),
-            new Color(1.12f, 0.9f, 0.86f),
-            new Color(1.18f, 1.08f, 0.88f)
+            new Color(0.88f, 0.98f, 0.9f),
+            new Color(0.84f, 0.92f, 1.02f),
+            new Color(0.96f, 0.9f, 0.86f),
+            new Color(1.02f, 0.98f, 0.84f)
         };
 
         float[] roleScale =
@@ -176,12 +176,12 @@ public class Troop : MonoBehaviour
         };
 
         Color teamTint = isPlayer
-            ? new Color(1f, 1f, 1f, 1f)
-            : new Color(0.82f, 0.9f, 1.05f, 1f);
+            ? new Color(0.96f, 1f, 0.98f, 1f)
+            : new Color(0.82f, 0.9f, 1.06f, 1f);
 
         Color finalTint = agePalette[age] * rolePalette[Mathf.Clamp(role, 0, rolePalette.Length - 1)] * teamTint;
         finalTint.a = 1f;
-        spriteR.color = new Color(finalTint.r * 0.6f, finalTint.g * 0.6f, finalTint.b * 0.6f, 0.08f);
+        spriteR.color = new Color(finalTint.r * 0.5f, finalTint.g * 0.5f, finalTint.b * 0.5f, 0.04f);
         visualScaleMultiplier = roleScale[Mathf.Clamp(role, 0, roleScale.Length - 1)];
 
         EnsureSilhouette();
@@ -252,16 +252,48 @@ public class Troop : MonoBehaviour
                         fill |= ny > 0.18f && ny < 0.3f && nx > 0.22f && nx < 0.78f;
                         break;
                     case "torso":
-                        fill = ny > 0.18f && ny < 0.92f && nx > 0.34f - ny * 0.06f && nx < 0.66f + ny * 0.06f;
-                        fill &= !(ny > 0.72f && (nx < 0.4f || nx > 0.6f));
+                        fill = ny > 0.14f && ny < 0.9f && nx > 0.28f && nx < 0.72f;
+                        fill &= !(ny > 0.76f && (nx < 0.4f || nx > 0.6f));
+                        fill |= ny > 0.52f && ny < 0.62f && nx > 0.24f && nx < 0.76f;
                         break;
                     case "mask":
                         fill = nx > 0.24f && nx < 0.76f && ny > 0.24f && ny < 0.78f;
                         fill &= !(ny > 0.42f && ny < 0.54f && nx > 0.36f && nx < 0.64f);
                         fill |= ny > 0.72f && nx > 0.34f && nx < 0.66f;
                         break;
+                    case "modern_face":
+                        fill = nx > 0.34f && nx < 0.66f && ny > 0.22f && ny < 0.7f;
+                        fill |= ny > 0.16f && ny < 0.28f && nx > 0.4f && nx < 0.6f;
+                        fill &= !(ny > 0.48f && ny < 0.58f && nx > 0.38f && nx < 0.62f);
+                        break;
+                    case "modern_head":
+                        fill = nx > 0.26f && nx < 0.74f && ny > 0.22f && ny < 0.78f;
+                        fill |= ny > 0.68f && nx > 0.18f && nx < 0.82f;
+                        fill &= !(ny > 0.38f && ny < 0.5f && nx > 0.34f && nx < 0.66f);
+                        break;
+                    case "helmet_shell":
+                        fill = nx > 0.22f && nx < 0.78f && ny > 0.34f && ny < 0.84f;
+                        fill &= !(ny > 0.34f && ny < 0.48f && nx > 0.34f && nx < 0.66f);
+                        fill |= ny > 0.74f && nx > 0.18f && nx < 0.82f;
+                        fill |= ny > 0.44f && ny < 0.54f && nx > 0.16f && nx < 0.26f;
+                        break;
+                    case "visor":
+                        fill = ny > 0.42f && ny < 0.56f && nx > 0.22f && nx < 0.78f;
+                        fill &= !(nx < 0.28f || nx > 0.72f);
+                        break;
+                    case "arm_modern":
+                        fill = nx > 0.38f && nx < 0.62f && ny > 0.14f && ny < 0.88f;
+                        fill |= ny > 0.68f && nx > 0.3f && nx < 0.7f;
+                        fill |= ny > 0.12f && ny < 0.22f && nx > 0.28f && nx < 0.72f;
+                        break;
+                    case "leg_modern":
+                        fill = nx > 0.4f && nx < 0.6f && ny > 0.14f && ny < 0.9f;
+                        fill |= ny > 0.14f && ny < 0.24f && nx > 0.3f && nx < 0.7f;
+                        fill |= ny > 0.76f && ny < 0.9f && nx > 0.26f && nx < 0.72f;
+                        break;
                     case "limb":
-                        fill = nx > 0.38f && nx < 0.62f && ny > 0.08f && ny < 0.92f;
+                        fill = nx > 0.32f && nx < 0.68f && ny > 0.08f && ny < 0.92f;
+                        fill |= ny > 0.74f && nx > 0.24f && nx < 0.76f;
                         break;
                     case "totem":
                         fill = nx > 0.34f && nx < 0.66f && ny > 0.12f && ny < 0.96f;
@@ -308,6 +340,22 @@ public class Troop : MonoBehaviour
                         fill = nx > 0.47f && nx < 0.53f && ny > 0.14f && ny < 0.72f;
                         fill |= ny >= 0.72f && nx > 0.4f && nx < 0.6f && Mathf.Abs(nx - 0.5f) < (1f - ny) * 1.7f;
                         fill |= ny > 0.18f && ny < 0.24f && nx > 0.32f && nx < 0.68f;
+                        break;
+                    case "rifle":
+                        fill = ny > 0.44f && ny < 0.58f && nx > 0.12f && nx < 0.86f;
+                        fill |= ny > 0.56f && ny < 0.82f && nx > 0.28f && nx < 0.42f;
+                        fill |= ny > 0.3f && ny < 0.44f && nx > 0.72f && nx < 0.88f;
+                        fill |= ny > 0.38f && ny < 0.46f && nx > 0.06f && nx < 0.18f;
+                        break;
+                    case "carbine":
+                        fill = ny > 0.44f && ny < 0.58f && nx > 0.18f && nx < 0.8f;
+                        fill |= ny > 0.56f && ny < 0.78f && nx > 0.34f && nx < 0.46f;
+                        fill |= ny > 0.32f && ny < 0.44f && nx > 0.64f && nx < 0.78f;
+                        break;
+                    case "launcher":
+                        fill = ny > 0.4f && ny < 0.64f && nx > 0.14f && nx < 0.86f;
+                        fill |= ny > 0.36f && ny < 0.68f && nx > 0.72f && nx < 0.92f;
+                        fill |= ny > 0.56f && ny < 0.82f && nx > 0.3f && nx < 0.44f;
                         break;
                 }
 
@@ -386,10 +434,17 @@ public class Troop : MonoBehaviour
     {
         if (headRenderer == null) return;
 
-        headRenderer.sprite = GetProceduralSprite("mask");
-        headRenderer.transform.localPosition = new Vector3(0f, 0.22f, 0f);
-        headRenderer.transform.localScale = new Vector3(0.16f + role * 0.015f, 0.16f + role * 0.015f, 1f);
-        headRenderer.color = Color.Lerp(baseTint, new Color(0.2f, 0.14f, 0.1f, 1f), 0.18f);
+        Color[] skinPalette =
+        {
+            new Color(0.93f, 0.79f, 0.68f, 1f),
+            new Color(0.83f, 0.68f, 0.56f, 1f),
+            new Color(0.72f, 0.56f, 0.45f, 1f)
+        };
+
+        headRenderer.sprite = GetProceduralSprite("modern_face");
+        headRenderer.transform.localPosition = new Vector3(0f, 0.225f, 0f);
+        headRenderer.transform.localScale = new Vector3(0.14f + role * 0.008f, 0.15f + role * 0.008f, 1f);
+        headRenderer.color = skinPalette[(age + role) % skinPalette.Length];
         headRenderer.enabled = true;
     }
 
@@ -397,57 +452,59 @@ public class Troop : MonoBehaviour
     {
         if (bodyRenderer == null) return;
 
-        bodyRenderer.sprite = role == 3 ? GetProceduralSprite("totem") : GetProceduralSprite("torso");
-        Vector3 position = new Vector3(0f, 0.04f, 0f);
+        bodyRenderer.sprite = GetProceduralSprite("armor");
+        Vector3 position = new Vector3(0f, 0.02f, 0f);
         Vector3 scale = new Vector3(0.2f, 0.28f, 1f);
-        if (role == 1) scale = new Vector3(0.16f, 0.24f, 1f);
+        if (role == 1) scale = new Vector3(0.19f, 0.27f, 1f);
         if (role == 2) scale = new Vector3(0.22f, 0.3f, 1f);
-        if (role == 3) scale = new Vector3(0.24f, 0.36f, 1f);
+        if (role == 3) scale = new Vector3(0.25f, 0.34f, 1f);
 
         bodyRenderer.transform.localPosition = position;
         bodyRenderer.transform.localScale = scale;
-        bodyRenderer.color = Color.Lerp(baseTint, new Color(0.18f, 0.12f, 0.08f, 1f), 0.3f + age * 0.04f);
+        bodyRenderer.color = Color.Lerp(baseTint, new Color(0.14f, 0.16f, 0.18f, 1f), 0.5f + age * 0.03f);
         bodyRenderer.enabled = true;
     }
 
     void ConfigureLimbs(int age, int role, Color baseTint)
     {
-        Sprite limbSprite = GetProceduralSprite("limb");
-        Color limbColor = Color.Lerp(baseTint, new Color(0.22f, 0.15f, 0.11f, 1f), 0.12f);
+        Sprite armSprite = GetProceduralSprite("arm_modern");
+        Sprite legSprite = GetProceduralSprite("leg_modern");
+        Color sleeveColor = Color.Lerp(baseTint, new Color(0.2f, 0.24f, 0.28f, 1f), 0.22f);
+        Color trouserColor = Color.Lerp(baseTint, new Color(0.16f, 0.18f, 0.2f, 1f), 0.34f);
 
         if (leftArmRenderer != null)
         {
-            leftArmRenderer.sprite = limbSprite;
-            leftArmRenderer.transform.localPosition = new Vector3(-0.12f, 0.04f, 0f);
-            leftArmRenderer.transform.localScale = new Vector3(0.06f, 0.22f + role * 0.01f, 1f);
-            leftArmRenderer.color = limbColor;
+            leftArmRenderer.sprite = armSprite;
+            leftArmRenderer.transform.localPosition = new Vector3(-0.11f, 0.035f, 0f);
+            leftArmRenderer.transform.localScale = new Vector3(0.07f, 0.18f + role * 0.01f, 1f);
+            leftArmRenderer.color = sleeveColor;
             leftArmRenderer.enabled = true;
         }
 
         if (rightArmRenderer != null)
         {
-            rightArmRenderer.sprite = limbSprite;
-            rightArmRenderer.transform.localPosition = new Vector3(0.12f, 0.04f, 0f);
-            rightArmRenderer.transform.localScale = new Vector3(0.06f, 0.22f + role * 0.01f, 1f);
-            rightArmRenderer.color = limbColor;
+            rightArmRenderer.sprite = armSprite;
+            rightArmRenderer.transform.localPosition = new Vector3(0.11f, 0.035f, 0f);
+            rightArmRenderer.transform.localScale = new Vector3(0.07f, 0.18f + role * 0.01f, 1f);
+            rightArmRenderer.color = sleeveColor;
             rightArmRenderer.enabled = true;
         }
 
         if (leftLegRenderer != null)
         {
-            leftLegRenderer.sprite = limbSprite;
-            leftLegRenderer.transform.localPosition = new Vector3(-0.06f, -0.16f, 0f);
-            leftLegRenderer.transform.localScale = new Vector3(0.06f, 0.24f + age * 0.01f, 1f);
-            leftLegRenderer.color = limbColor;
+            leftLegRenderer.sprite = legSprite;
+            leftLegRenderer.transform.localPosition = new Vector3(-0.05f, -0.145f, 0f);
+            leftLegRenderer.transform.localScale = new Vector3(0.07f, 0.22f + age * 0.008f, 1f);
+            leftLegRenderer.color = trouserColor;
             leftLegRenderer.enabled = true;
         }
 
         if (rightLegRenderer != null)
         {
-            rightLegRenderer.sprite = limbSprite;
-            rightLegRenderer.transform.localPosition = new Vector3(0.06f, -0.16f, 0f);
-            rightLegRenderer.transform.localScale = new Vector3(0.06f, 0.24f + age * 0.01f, 1f);
-            rightLegRenderer.color = limbColor;
+            rightLegRenderer.sprite = legSprite;
+            rightLegRenderer.transform.localPosition = new Vector3(0.05f, -0.145f, 0f);
+            rightLegRenderer.transform.localScale = new Vector3(0.07f, 0.22f + age * 0.008f, 1f);
+            rightLegRenderer.color = trouserColor;
             rightLegRenderer.enabled = true;
         }
     }
@@ -456,19 +513,31 @@ public class Troop : MonoBehaviour
     {
         if (crestRenderer == null) return;
 
-        bool enabled = age >= 1 || role >= 2;
-        crestRenderer.enabled = enabled;
-        if (!enabled) return;
+        crestRenderer.enabled = true;
+        crestRenderer.sprite = GetProceduralSprite("helmet_shell");
 
-        crestRenderer.sprite = role == 1 ? GetProceduralSprite("feather") : GetProceduralSprite("helmet");
-        crestRenderer.transform.localPosition = new Vector3(0f, 0.16f, 0f);
-        crestRenderer.transform.localScale = role == 1
-            ? new Vector3(0.12f, 0.18f, 1f)
-            : new Vector3(0.2f, 0.16f + age * 0.015f, 1f);
+        Vector3 position = new Vector3(0f, 0.245f, 0f);
+        Vector3 scale = new Vector3(0.18f, 0.14f, 1f);
 
-        crestRenderer.color = isPlayer
-            ? Color.Lerp(baseTint, new Color(0.96f, 0.82f, 0.24f, 1f), 0.5f)
-            : Color.Lerp(baseTint, new Color(0.3f, 0.8f, 1f, 1f), 0.55f);
+        if (role == 1)
+        {
+            position = new Vector3(0.004f, 0.245f, 0f);
+            scale = new Vector3(0.19f, 0.145f, 1f);
+        }
+        else if (role == 2)
+        {
+            position = new Vector3(0.006f, 0.25f, 0f);
+            scale = new Vector3(0.2f, 0.15f, 1f);
+        }
+        else if (role == 3)
+        {
+            position = new Vector3(0.008f, 0.255f, 0f);
+            scale = new Vector3(0.215f, 0.16f, 1f);
+        }
+
+        crestRenderer.transform.localPosition = position;
+        crestRenderer.transform.localScale = scale;
+        crestRenderer.color = Color.Lerp(baseTint, new Color(0.11f, 0.14f, 0.17f, 1f), 0.72f);
     }
 
     void ConfigureWeaponAttachment(int age, int role, Color baseTint)
@@ -481,30 +550,28 @@ public class Troop : MonoBehaviour
         switch (role)
         {
             case 0:
-                weaponRenderer.sprite = GetProceduralSprite(age <= 1 ? "club" : "spear");
-                weaponRenderer.transform.localPosition = new Vector3(0.14f * side, 0.02f, 0f);
-                weaponRenderer.transform.localScale = new Vector3(0.12f, 0.32f + age * 0.03f, 1f);
+                weaponRenderer.sprite = GetProceduralSprite("carbine");
+                weaponRenderer.transform.localPosition = new Vector3(0.15f * side, 0.02f, 0f);
+                weaponRenderer.transform.localScale = new Vector3(0.24f, 0.11f, 1f);
                 break;
             case 1:
-                weaponRenderer.sprite = GetProceduralSprite(age >= 2 ? "bow" : "shield");
-                weaponRenderer.transform.localPosition = new Vector3(0.16f * side, 0.02f, 0f);
-                weaponRenderer.transform.localScale = age >= 2
-                    ? new Vector3(0.24f, 0.28f, 1f)
-                    : new Vector3(0.2f, 0.22f, 1f);
+                weaponRenderer.sprite = GetProceduralSprite("rifle");
+                weaponRenderer.transform.localPosition = new Vector3(0.16f * side, 0.025f, 0f);
+                weaponRenderer.transform.localScale = new Vector3(0.28f, 0.11f, 1f);
                 break;
             case 2:
-                weaponRenderer.sprite = GetProceduralSprite(age >= 3 ? "blade" : "dagger");
-                weaponRenderer.transform.localPosition = new Vector3(0.16f * side, 0.06f, 0f);
-                weaponRenderer.transform.localScale = new Vector3(0.14f, 0.34f + age * 0.03f, 1f);
+                weaponRenderer.sprite = GetProceduralSprite(age >= 2 ? "rifle" : "carbine");
+                weaponRenderer.transform.localPosition = new Vector3(0.16f * side, 0.03f, 0f);
+                weaponRenderer.transform.localScale = new Vector3(0.27f, 0.11f, 1f);
                 break;
             default:
-                weaponRenderer.sprite = GetProceduralSprite("totem");
-                weaponRenderer.transform.localPosition = new Vector3(0.18f * side, 0.04f, 0f);
-                weaponRenderer.transform.localScale = new Vector3(0.16f, 0.42f, 1f);
+                weaponRenderer.sprite = GetProceduralSprite("launcher");
+                weaponRenderer.transform.localPosition = new Vector3(0.17f * side, 0.04f, 0f);
+                weaponRenderer.transform.localScale = new Vector3(0.31f, 0.14f, 1f);
                 break;
         }
 
-        weaponRenderer.color = Color.Lerp(baseTint, new Color(0.18f, 0.12f, 0.08f, 1f), 0.52f);
+        weaponRenderer.color = Color.Lerp(baseTint, new Color(0.11f, 0.12f, 0.14f, 1f), 0.68f);
         weaponRenderer.flipX = !isPlayer;
     }
 
@@ -515,14 +582,14 @@ public class Troop : MonoBehaviour
         float stepAbs = Mathf.Abs(step);
         float moveBlend = is_moving ? 1f : 0.08f;
         float attackBlend = (attacking_melee || attacking_range) ? 1f : 0f;
-        float bob = stepAbs * 0.022f * moveBlend + Mathf.Sin(t * 0.5f) * 0.004f;
-        float lean = step * 1.8f * moveBlend;
+        float bob = stepAbs * 0.018f * moveBlend + Mathf.Sin(t * 0.5f) * 0.003f;
+        float lean = step * 1.2f * moveBlend;
 
         if (attackBlend > 0f)
         {
             float jab = Mathf.Sin(Time.time * 12f + animationSeed);
             bob += Mathf.Abs(jab) * 0.012f;
-            lean += (isPlayer ? -1f : 1f) * jab * 3.5f;
+            lean += (isPlayer ? -1f : 1f) * jab * 2.2f;
         }
 
         Vector3 localPos = transform.localPosition;
@@ -545,31 +612,31 @@ public class Troop : MonoBehaviour
 
         if (leftArmRenderer != null)
         {
-            float armSwing = is_moving ? step * 10f : Mathf.Sin(t * 0.6f) * 2f;
-            if (attackBlend > 0f) armSwing = 16f * Mathf.Sin(Time.time * 11f + animationSeed);
+            float armSwing = is_moving ? step * 7f : Mathf.Sin(t * 0.6f) * 1.5f;
+            if (attackBlend > 0f) armSwing = 9f * Mathf.Sin(Time.time * 11f + animationSeed);
             leftArmRenderer.transform.localPosition = leftArmBasePosition + new Vector3(0f, stepAbs * 0.004f, 0f);
             leftArmRenderer.transform.localRotation = Quaternion.Euler(0f, 0f, armSwing);
         }
 
         if (rightArmRenderer != null)
         {
-            float armSwing = is_moving ? -step * 10f : -Mathf.Sin(t * 0.6f) * 2f;
-            if (attackBlend > 0f) armSwing = -10f * Mathf.Sin(Time.time * 11f + animationSeed);
+            float armSwing = is_moving ? -step * 7f : -Mathf.Sin(t * 0.6f) * 1.5f;
+            if (attackBlend > 0f) armSwing = -7f * Mathf.Sin(Time.time * 11f + animationSeed);
             rightArmRenderer.transform.localPosition = rightArmBasePosition + new Vector3(0f, stepAbs * 0.004f, 0f);
             rightArmRenderer.transform.localRotation = Quaternion.Euler(0f, 0f, armSwing);
         }
 
         if (leftLegRenderer != null)
         {
-            float legSwing = is_moving ? -step * 12f : 0f;
-            leftLegRenderer.transform.localPosition = leftLegBasePosition + new Vector3(0f, Mathf.Max(0f, -step) * 0.01f, 0f);
+            float legSwing = is_moving ? -step * 10f : 0f;
+            leftLegRenderer.transform.localPosition = leftLegBasePosition + new Vector3(0f, Mathf.Max(0f, -step) * 0.008f, 0f);
             leftLegRenderer.transform.localRotation = Quaternion.Euler(0f, 0f, legSwing);
         }
 
         if (rightLegRenderer != null)
         {
-            float legSwing = is_moving ? step * 12f : 0f;
-            rightLegRenderer.transform.localPosition = rightLegBasePosition + new Vector3(0f, Mathf.Max(0f, step) * 0.01f, 0f);
+            float legSwing = is_moving ? step * 10f : 0f;
+            rightLegRenderer.transform.localPosition = rightLegBasePosition + new Vector3(0f, Mathf.Max(0f, step) * 0.008f, 0f);
             rightLegRenderer.transform.localRotation = Quaternion.Euler(0f, 0f, legSwing);
         }
 
@@ -581,13 +648,13 @@ public class Troop : MonoBehaviour
 
         if (weaponRenderer != null)
         {
-            float swing = is_moving ? step * 8f : Mathf.Sin(Time.time * 2f + animationSeed) * 2f;
+            float swing = is_moving ? step * 4f : Mathf.Sin(Time.time * 2f + animationSeed) * 1.2f;
             if (attackBlend > 0f)
             {
-                swing = 18f * Mathf.Sin(Time.time * 10f + animationSeed);
+                swing = 8f * Mathf.Sin(Time.time * 10f + animationSeed);
             }
 
-            weaponRenderer.transform.localPosition = weaponBasePosition + new Vector3(0.01f * side * step, stepAbs * 0.006f, 0f);
+            weaponRenderer.transform.localPosition = weaponBasePosition + new Vector3(0.008f * side * step, stepAbs * 0.004f, 0f);
             weaponRenderer.transform.localRotation = Quaternion.Euler(0f, 0f, swing * side);
         }
     }
