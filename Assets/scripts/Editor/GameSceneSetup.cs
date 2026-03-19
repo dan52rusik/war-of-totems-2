@@ -19,6 +19,25 @@ public class GameSceneSetup : EditorWindow
             return;
         }
 
+        // ===================== CLEANUP =====================
+        var oldLms = GameObject.FindGameObjectsWithTag("MainCamera");
+        var oldLm = GameObject.Find("_LevelManager");
+        if (oldLm) DestroyImmediate(oldLm);
+        var oldCanvas = GameObject.Find("GameHUDCanvas");
+        if (oldCanvas) DestroyImmediate(oldCanvas);
+        var oldEvent = GameObject.Find("EventSystem");
+        if (oldEvent) DestroyImmediate(oldEvent);
+
+        // Также удаляем старые дубликаты, если их несколько (даже если у них приписка (1) в имени)
+        foreach (var c in FindObjectsByType<Canvas>(FindObjectsSortMode.None))
+        {
+            if (c.name != null && c.name.Contains("GameHUDCanvas")) DestroyImmediate(c.gameObject);
+        }
+        foreach (var l in FindObjectsByType<LevelManager>(FindObjectsSortMode.None))
+        {
+            if (l.gameObject.name != null && l.gameObject.name.Contains("_LevelManager")) DestroyImmediate(l.gameObject);
+        }
+
         // ===================== LEVEL MANAGER =====================
         GameObject levelManagerObj = new GameObject("_LevelManager");
         LevelManager levelManager = levelManagerObj.AddComponent<LevelManager>();
@@ -293,12 +312,20 @@ public class GameSceneSetup : EditorWindow
         GameObject pausePanel = CreateResultPanel(canvasObj.transform, "PausePanel",
             "ПАУЗА", new Color(0.1f, 0.1f, 0.2f, 0.95f));
 
-        Button pauseResumeBtn = CreateStyledButton(pausePanel.transform.Find("ButtonContainer"),
-            "ResumeBtn", "Продолжить", 250, 55,
-            new Color(0.15f, 0.35f, 0.15f), out _);
-        Button pauseMenuBtn = CreateStyledButton(pausePanel.transform.Find("ButtonContainer"),
-            "PauseMenuBtn", "Меню", 200, 55,
-            new Color(0.3f, 0.3f, 0.4f), out _);
+        Transform pCenter = pausePanel.transform.Find("CenterBlock");
+        Transform pBtns = pCenter.Find("ButtonContainer");
+
+        Button pauseResumeBtn = CreateStyledButton(pBtns, "ResumeBtn", "Продолжить", 160, 55, new Color(0.15f, 0.35f, 0.15f), out _);
+        Button pauseRetryBtn = CreateStyledButton(pBtns, "RetryBtn", "Заново", 160, 55, new Color(0.4f, 0.3f, 0.15f), out _);
+        Button pauseMenuBtn = CreateStyledButton(pBtns, "PauseMenuBtn", "Меню", 160, 55, new Color(0.3f, 0.3f, 0.4f), out _);
+
+        // Кнопка закрытия (крестик)
+        Button closeBtn = CreateStyledButton(pCenter, "CloseBtn", "X", 45, 45, new Color(0.7f, 0.2f, 0.2f, 0.9f), out _);
+        RectTransform closeRect = closeBtn.GetComponent<RectTransform>();
+        closeRect.anchorMin = new Vector2(1, 1);
+        closeRect.anchorMax = new Vector2(1, 1);
+        closeRect.pivot = new Vector2(1, 1);
+        closeRect.anchoredPosition = new Vector2(-15, -15);
 
         pausePanel.SetActive(false);
 
@@ -339,7 +366,6 @@ public class GameSceneSetup : EditorWindow
         uiController.troopButtons = troopButtons;
 
         // Control buttons → LevelManager
-        AddButtonEvent(pauseBtn, levelManager, "OnPauseButton");
         AddButtonEvent(speedBtn, levelManager, "OnSpeedUpButton");
 
         // LevelManager
@@ -354,9 +380,7 @@ public class GameSceneSetup : EditorWindow
         AddButtonEvent(loseRetryBtn, levelManager, "OnRetryButton");
         AddButtonEvent(loseMenuBtn, levelManager, "OnMainMenuButton");
 
-        // Pause panel buttons
-        AddButtonEvent(pauseResumeBtn, levelManager, "OnPauseButton");
-        AddButtonEvent(pauseMenuBtn, levelManager, "OnMainMenuButton");
+        // Pause panel buttons (привязываются ДИНАМИЧЕСКИ в GameUIController)
 
         // Пометить сцену как изменённую
         UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(

@@ -10,6 +10,7 @@ public class GameUIController : MonoBehaviour
 {
     private GameManager gm;
     private LevelManager lm;
+    private bool levelManagerButtonsBound;
 
     [Header("Верхняя панель")]
     public TextMeshProUGUI moneyText;
@@ -39,35 +40,14 @@ public class GameUIController : MonoBehaviour
     void Start()
     {
         lm = FindObjectOfType<LevelManager>();
-        
+
+        ResolveUiReferences();
+
         if (winPanel != null) winPanel.SetActive(false);
         if (losePanel != null) losePanel.SetActive(false);
         if (pausePanel != null) pausePanel.SetActive(false);
 
-        // --- ДИНАМИЧЕСКАЯ ПРИВЯЗКА КНОПОК ПАУЗЫ И СКОРОСТИ ---
-        // (чтобы клик точно срабатывал, даже если сломался UnityEditor Event Tool)
-        if (lm != null)
-        {
-            var pauseBtnTrans = transform.Find("TopBar/PauseBtn");
-            if (pauseBtnTrans == null && transform.parent != null)
-                pauseBtnTrans = transform.parent.Find("TopBar/PauseBtn"); // Если скрипт где-то еще
-            
-            // Если не нашли так, ищем глобально
-            Button pBtn = pauseBtnTrans ? pauseBtnTrans.GetComponent<Button>() : GameObject.Find("PauseBtn")?.GetComponent<Button>();
-            if (pBtn)
-            {
-                pBtn.onClick.RemoveAllListeners();
-                pBtn.onClick.AddListener(lm.OnPauseButton);
-            }
-
-            // --- Кнопка Скорости ---
-            Button sBtn = GameObject.Find("SpeedBtn")?.GetComponent<Button>();
-            if (sBtn)
-            {
-                sBtn.onClick.RemoveAllListeners();
-                sBtn.onClick.AddListener(lm.OnSpeedUpButton);
-            }
-        }
+        BindLevelManagerButtons();
 
         // Читаем из PlayerPrefs, какие тиры куплены в магазине
         tierUnlocked[0] = true; // Tier 1 всегда открыт
@@ -90,6 +70,97 @@ public class GameUIController : MonoBehaviour
         {
             Debug.Log("[UI] GameManager найден!");
         }
+    }
+
+    void TryFindLM()
+    {
+        if (lm != null) return;
+        lm = FindFirstObjectByType<LevelManager>();
+    }
+
+    void ResolveUiReferences()
+    {
+        if (pausePanel == null)
+        {
+            var p = transform.Find("PausePanel");
+            if (p != null) pausePanel = p.gameObject;
+            else pausePanel = GameObject.Find("PausePanel");
+        }
+
+        if (winPanel == null)
+        {
+            var p = transform.Find("WinPanel");
+            if (p != null) winPanel = p.gameObject;
+            else winPanel = GameObject.Find("WinPanel");
+        }
+
+        if (losePanel == null)
+        {
+            var p = transform.Find("LosePanel");
+            if (p != null) losePanel = p.gameObject;
+            else losePanel = GameObject.Find("LosePanel");
+        }
+    }
+
+    void BindLevelManagerButtons()
+    {
+        TryFindLM();
+        ResolveUiReferences();
+
+        if (lm == null)
+        {
+            levelManagerButtonsBound = false;
+            return;
+        }
+
+        var pBtnTrans = transform.Find("TopBar/PauseBtn");
+        if (pBtnTrans == null && transform.parent != null) pBtnTrans = transform.parent.Find("TopBar/PauseBtn");
+        Button pBtn = pBtnTrans ? pBtnTrans.GetComponent<Button>() : GameObject.Find("PauseBtn")?.GetComponent<Button>();
+        if (pBtn != null)
+        {
+            pBtn.onClick.RemoveAllListeners();
+            pBtn.onClick.AddListener(lm.OnPauseButton);
+        }
+
+        Button sBtn = GameObject.Find("SpeedBtn")?.GetComponent<Button>();
+        if (sBtn != null)
+        {
+            sBtn.onClick.RemoveAllListeners();
+            sBtn.onClick.AddListener(lm.OnSpeedUpButton);
+        }
+
+        if (pausePanel != null)
+        {
+            var rBtn = FindChildByName(pausePanel.transform, "ResumeBtn")?.GetComponent<Button>();
+            if (rBtn != null)
+            {
+                rBtn.onClick.RemoveAllListeners();
+                rBtn.onClick.AddListener(lm.OnPauseButton);
+            }
+
+            var rtBtn = FindChildByName(pausePanel.transform, "RetryBtn")?.GetComponent<Button>();
+            if (rtBtn != null)
+            {
+                rtBtn.onClick.RemoveAllListeners();
+                rtBtn.onClick.AddListener(lm.OnRetryButton);
+            }
+
+            var mBtn = FindChildByName(pausePanel.transform, "PauseMenuBtn")?.GetComponent<Button>();
+            if (mBtn != null)
+            {
+                mBtn.onClick.RemoveAllListeners();
+                mBtn.onClick.AddListener(lm.OnMainMenuButton);
+            }
+
+            var cxBtn = FindChildByName(pausePanel.transform, "CloseBtn")?.GetComponent<Button>();
+            if (cxBtn != null)
+            {
+                cxBtn.onClick.RemoveAllListeners();
+                cxBtn.onClick.AddListener(lm.OnPauseButton);
+            }
+        }
+
+        levelManagerButtonsBound = true;
     }
 
     // ========== МЕТОДЫ УПРАВЛЕНИЯ ==========
@@ -166,7 +237,10 @@ public class GameUIController : MonoBehaviour
 
     public void ShowPause(bool paused)
     {
+        ResolveUiReferences();
+        if (!levelManagerButtonsBound) BindLevelManagerButtons();
         if (pausePanel != null) pausePanel.SetActive(paused);
+        else Debug.LogError("[UI] ShowPause вызван, но окно паузы не найдено!");
     }
 
     public void UpdateSpeedText(float speed)
@@ -176,6 +250,11 @@ public class GameUIController : MonoBehaviour
 
     void Update()
     {
+        if (!levelManagerButtonsBound)
+        {
+            BindLevelManagerButtons();
+        }
+
         TryFindGM();
         if (gm == null) return;
 
