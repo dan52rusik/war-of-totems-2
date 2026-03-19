@@ -522,6 +522,7 @@ public class LevelManager : MonoBehaviour
 
     public void OnPauseButton()
     {
+        Debug.Log("[LM] Clicked OnPauseButton. UI Pause. Time.timeScale = " + Time.timeScale);
         if (Time.timeScale > 0)
         {
             Time.timeScale = 0f;
@@ -536,6 +537,7 @@ public class LevelManager : MonoBehaviour
 
     public void OnSpeedUpButton()
     {
+        Debug.Log("[LM] Clicked OnSpeedUpButton. UI SpeedUp.");
         if (gameSpeed < 4f)
         {
             gameSpeed *= 2f;

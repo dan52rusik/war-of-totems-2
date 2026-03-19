@@ -44,6 +44,31 @@ public class GameUIController : MonoBehaviour
         if (losePanel != null) losePanel.SetActive(false);
         if (pausePanel != null) pausePanel.SetActive(false);
 
+        // --- ДИНАМИЧЕСКАЯ ПРИВЯЗКА КНОПОК ПАУЗЫ И СКОРОСТИ ---
+        // (чтобы клик точно срабатывал, даже если сломался UnityEditor Event Tool)
+        if (lm != null)
+        {
+            var pauseBtnTrans = transform.Find("TopBar/PauseBtn");
+            if (pauseBtnTrans == null && transform.parent != null)
+                pauseBtnTrans = transform.parent.Find("TopBar/PauseBtn"); // Если скрипт где-то еще
+            
+            // Если не нашли так, ищем глобально
+            Button pBtn = pauseBtnTrans ? pauseBtnTrans.GetComponent<Button>() : GameObject.Find("PauseBtn")?.GetComponent<Button>();
+            if (pBtn)
+            {
+                pBtn.onClick.RemoveAllListeners();
+                pBtn.onClick.AddListener(lm.OnPauseButton);
+            }
+
+            // --- Кнопка Скорости ---
+            Button sBtn = GameObject.Find("SpeedBtn")?.GetComponent<Button>();
+            if (sBtn)
+            {
+                sBtn.onClick.RemoveAllListeners();
+                sBtn.onClick.AddListener(lm.OnSpeedUpButton);
+            }
+        }
+
         // Читаем из PlayerPrefs, какие тиры куплены в магазине
         tierUnlocked[0] = true; // Tier 1 всегда открыт
         tierUnlocked[1] = PlayerPrefs.GetInt("Unlock_Tier2", 0) >= 1;

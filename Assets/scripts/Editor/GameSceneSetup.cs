@@ -171,9 +171,9 @@ public class GameSceneSetup : EditorWindow
 
         // Кнопки управления в TopBar
         TextMeshProUGUI speedText;
-        Button pauseBtn = CreateStyledButton(topBar.transform, "PauseBtn", "Пауза", 60, 50,
+        Button pauseBtn = CreateStyledButton(topBar.transform, "PauseBtn", "Пауза", 120, 50,
             new Color(0.3f, 0.3f, 0.4f), out _);
-        Button speedBtn = CreateStyledButton(topBar.transform, "SpeedBtn", "x1", 80, 50,
+        Button speedBtn = CreateStyledButton(topBar.transform, "SpeedBtn", "x1", 100, 50,
             new Color(0.2f, 0.35f, 0.5f), out speedText);
 
         // ===================== LEVEL NAME (поверх TopBar) =====================
@@ -338,16 +338,12 @@ public class GameSceneSetup : EditorWindow
         uiController.pausePanel = pausePanel;
         uiController.troopButtons = troopButtons;
 
-        // Кнопки паузы и скорости
-        AddButtonEvent(pauseBtn, lm, "OnPauseButton");
-        AddButtonEvent(speedBtn, lm, "OnSpeedUpButton");
-
-        // LevelManager
-        levelManager.gameHUD = uiController;
-
         // Control buttons → LevelManager
         AddButtonEvent(pauseBtn, levelManager, "OnPauseButton");
         AddButtonEvent(speedBtn, levelManager, "OnSpeedUpButton");
+
+        // LevelManager
+        levelManager.gameHUD = uiController;
 
         // Win panel buttons
         AddButtonEvent(winNextBtn, levelManager, "OnNextLevelButton");
