@@ -106,6 +106,13 @@ public class GameHUD : MonoBehaviour
                 if (troopButtons[i] == null) continue;
                 bool canSpawn = gm.check_spawn_player_troop(i) && gm.player_troops_queue.Count < 20;
 
+                // Проверка разблокировки в магазине
+                if (i > 0)
+                {
+                    bool isUnlocked = PlayerPrefs.GetInt("Unlock_Tier" + (i + 1), 0) == 1;
+                    if (!isUnlocked) canSpawn = false;
+                }
+
                 // Проверяем ограничения уровня
                 if (levelData != null && i > levelData.playerMaxTroopTier)
                     canSpawn = false;
@@ -120,6 +127,12 @@ public class GameHUD : MonoBehaviour
                     if (costIndex < od.troop_costs.Length)
                     {
                         troopCostTexts[i].text = FormatNumber(od.troop_costs[costIndex]);
+                        
+                        // Цвет текста стоимости в зависимости от разблокировки
+                        if (i > 0 && PlayerPrefs.GetInt("Unlock_Tier" + (i + 1), 0) == 0)
+                            troopCostTexts[i].color = new Color(0.5f, 0.5f, 0.5f, 0.5f);
+                        else
+                            troopCostTexts[i].color = new Color(1f, 0.85f, 0.3f);
                     }
                 }
             }

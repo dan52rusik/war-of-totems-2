@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using System;
+using UnityEngine.UI;
 
 public class Troop : MonoBehaviour
 {
@@ -31,26 +32,78 @@ public class Troop : MonoBehaviour
     [SerializeField] SpriteRenderer spriteR;
     [SerializeField] BoxCollider2D Box;
 
+    // HP Bar
+    private Image hpFill;
+    private bool hpBarCreated = false;
+
 
     Coroutine inst_melee;
     Coroutine inst_range;
 
     [System.NonSerialized]
-    public bool info = true;
+    public bool info = false;
 
     Data data;
 
     void manage_texts()
     {
-        
         if (info)
         {
-          
             int health = troop_data.health;
-            hp.text = "" + health;
-            moving.text = "" + is_moving;
-            attacking.text = "" + attacking_melee + "\n" + attacking_range;
+            if (hp != null) hp.text = "" + health;
+            if (moving != null) moving.text = "" + is_moving;
+            if (attacking != null) attacking.text = "" + attacking_melee + "\n" + attacking_range;
         }
+        else
+        {
+            // Скрываем дебаг-тексты, если они не нужны
+            if (hp != null && hp.gameObject.activeSelf) hp.gameObject.SetActive(false);
+            if (moving != null && moving.gameObject.activeSelf) moving.gameObject.SetActive(false);
+            if (attacking != null && attacking.gameObject.activeSelf) attacking.gameObject.SetActive(false);
+        }
+
+        UpdateHPBar(troop_data.health);
+    }
+
+    void UpdateHPBar(int health)
+    {
+        if (!hpBarCreated) CreateHPBar();
+        if (hpFill != null)
+        {
+            float fill = Mathf.Clamp01((float)health / max_health);
+            hpFill.fillAmount = fill;
+            // Цвет: зелёный для игрока, красный для врага
+            hpFill.color = isPlayer ? new Color(0.2f, 0.8f, 0.2f) : new Color(0.8f, 0.2f, 0.2f);
+        }
+    }
+
+    void CreateHPBar()
+    {
+        if (local_canvas == null) return;
+        
+        // Фон баре
+        GameObject bgObj = new GameObject("HP_BG");
+        bgObj.transform.SetParent(local_canvas.transform, false);
+        RectTransform bgRect = bgObj.AddComponent<RectTransform>();
+        bgRect.sizeDelta = new Vector2(100, 10);
+        bgRect.anchoredPosition = new Vector2(0, 50); // Над головой
+        Image bgImg = bgObj.AddComponent<Image>();
+        bgImg.color = new Color(0, 0, 0, 0.5f);
+
+        // Заполнение
+        GameObject fillObj = new GameObject("HP_Fill");
+        fillObj.transform.SetParent(bgObj.transform, false);
+        RectTransform fillRect = fillObj.AddComponent<RectTransform>();
+        fillRect.anchorMin = Vector2.zero;
+        fillRect.anchorMax = Vector2.one;
+        fillRect.sizeDelta = new Vector2(-4, -4); // Отступ
+        
+        hpFill = fillObj.AddComponent<Image>();
+        hpFill.type = Image.Type.Filled;
+        hpFill.fillMethod = Image.FillMethod.Horizontal;
+        hpFill.fillAmount = 1f;
+        
+        hpBarCreated = true;
     }
 
     void manage_sprites()
@@ -326,6 +379,7 @@ public class Troop : MonoBehaviour
     {
         melee_routine = true;
         yield return new WaitForSeconds(cooldown);
+        if (!gameObject.activeInHierarchy) { melee_routine = false; yield break; }
         give_damage(troop_data.melee_damage);
         if (attacking_melee)
         {
@@ -341,6 +395,7 @@ public class Troop : MonoBehaviour
     {
         range_routine = true;
         yield return new WaitForSeconds(cooldown);
+        if (!gameObject.activeInHierarchy) { range_routine = false; yield break; }
         if (!attacking_melee)
         {
             give_damage(troop_data.ranged_damage);

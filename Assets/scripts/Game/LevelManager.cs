@@ -136,12 +136,20 @@ public class LevelManager : MonoBehaviour
                 Debug.LogWarning("[LM] GameUIController НЕ найден! Окна победы/поражения не будут работать.");
         }
 
-        // Настроить HUD
+        // Настроить GameUIController (новый HUD)
         if (gameHUD != null)
         {
             gameHUD.BindGameManager(currentGameManager);
             gameHUD.Initialize(levelData, currentGameManager.player_hp);
             Debug.Log("[LM] HUD привязан к GameManager");
+        }
+
+        // Настроить GameHUD (старый HUD) — обновляем название уровня и GM
+        GameHUD oldHUD = FindObjectOfType<GameHUD>();
+        if (oldHUD != null)
+        {
+            oldHUD.Initialize(currentGameManager, levelData);
+            Debug.Log("[LM] GameHUD обновлён для уровня " + (levelData != null ? levelData.levelNumber.ToString() : "?"));
         }
 
         // Найти PlayerController и передать ему GM
@@ -406,14 +414,93 @@ public class LevelManager : MonoBehaviour
     public void OnRetryButton()
     {
         Time.timeScale = 1f;
+
+        // Скрываем все панели
+        EnsureHUD();
+        if (gameHUD != null)
+        {
+            if (gameHUD.winPanel != null) gameHUD.winPanel.SetActive(false);
+            if (gameHUD.losePanel != null) gameHUD.losePanel.SetActive(false);
+            if (gameHUD.pausePanel != null) gameHUD.pausePanel.SetActive(false);
+        }
+        else
+        {
+            // Резервно — ищем и скрываем напрямую
+            var wp = GameObject.Find("WinPanel"); if (wp != null) wp.SetActive(false);
+            var lp = GameObject.Find("LosePanel"); if (lp != null) lp.SetActive(false);
+        }
+
+        State = LevelState.NotStarted;
         StartLevel();
     }
 
     public void OnNextLevelButton()
     {
-        // TODO: загрузить следующий LevelData и перезапустить
         Time.timeScale = 1f;
-        Debug.Log("Next level — будет реализовано с экраном выбора уровней");
+
+        // Ищем следующий LevelData
+        LevelData nextLevel = FindNextLevel();
+
+        // Скрываем панели
+        EnsureHUD();
+        if (gameHUD != null)
+        {
+            if (gameHUD.winPanel != null) gameHUD.winPanel.SetActive(false);
+            if (gameHUD.losePanel != null) gameHUD.losePanel.SetActive(false);
+        }
+        else
+        {
+            var wp = GameObject.Find("WinPanel"); if (wp != null) wp.SetActive(false);
+        }
+
+        if (nextLevel != null)
+        {
+            levelData = nextLevel;
+            State = LevelState.NotStarted;
+            StartLevel();
+            Debug.Log($"[LM] Загружен уровень {nextLevel.levelNumber}: {nextLevel.levelName}");
+        }
+        else
+        {
+            // Следующего уровня нет — идём в главное меню
+            Debug.Log("[LM] Следующего уровня нет. Переход в главное меню.");
+            SceneManager.LoadScene("MainMenu");
+        }
+    }
+
+    LevelData FindNextLevel()
+    {
+        if (levelData == null) return null;
+        int nextNumber = levelData.levelNumber + 1;
+
+        // 1. Ищем в Resources/Levels (для билда)
+        LevelData[] allLevels = Resources.LoadAll<LevelData>("Levels");
+        foreach (var ld in allLevels)
+        {
+            if (ld.levelNumber == nextNumber) return ld;
+        }
+
+#if UNITY_EDITOR
+        // 2. Ищем в Assets/LevelData/ (реальное расположение в проекте)
+        string[] guids = UnityEditor.AssetDatabase.FindAssets("t:LevelData", new[] { "Assets/LevelData" });
+
+        // 3. Если не нашли — ищем по всему проекту
+        if (guids.Length == 0)
+            guids = UnityEditor.AssetDatabase.FindAssets("t:LevelData");
+
+        foreach (string guid in guids)
+        {
+            string path = UnityEditor.AssetDatabase.GUIDToAssetPath(guid);
+            LevelData ld = UnityEditor.AssetDatabase.LoadAssetAtPath<LevelData>(path);
+            if (ld != null && ld.levelNumber == nextNumber)
+            {
+                Debug.Log($"[LM] Найден следующий уровень: {ld.levelName} (#{ld.levelNumber}) по пути {path}");
+                return ld;
+            }
+        }
+#endif
+        Debug.LogWarning($"[LM] Уровень #{nextNumber} не найден.");
+        return null;
     }
 
     public void OnMainMenuButton()

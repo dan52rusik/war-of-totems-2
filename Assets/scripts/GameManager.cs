@@ -92,8 +92,6 @@ public class GameManager : MonoBehaviour
                 Destroy(enemy_troops_queue[i]);
             }
             enemy_troops_queue = new List<GameObject>();
-            
-            gameObject.SetActive(false);
         }
         else
         {

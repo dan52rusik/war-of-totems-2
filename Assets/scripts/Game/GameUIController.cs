@@ -111,6 +111,10 @@ public class GameUIController : MonoBehaviour
 
         if (panel != null)
         {
+            // Кэшируем для дальнейшего использования (OnRetryButton)
+            if (win) winPanel = panel;
+            else losePanel = panel;
+
             panel.SetActive(true);
             Debug.Log($"[UI] Панель {panelName} показана!");
 
