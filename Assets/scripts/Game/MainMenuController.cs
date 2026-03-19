@@ -22,7 +22,7 @@ public class MainMenuController : MonoBehaviour
     public GameObject levelButtonPrefab;
     public List<LevelData> allLevels; // Список всех уровней (назначается через setup или вручную)
 
-    [Header("Магазин — Тексты Уровней")]
+    [Header("Магазин — Тексты Улучшений")]
     public TextMeshProUGUI hpUpgradeLvlText;
     public TextMeshProUGUI rewardUpgradeLvlText;
     public TextMeshProUGUI discountUpgradeLvlText;
@@ -34,8 +34,20 @@ public class MainMenuController : MonoBehaviour
     public TextMeshProUGUI discountPriceText;
     public TextMeshProUGUI startMoneyPriceText;
 
+    [Header("Магазин — Разблокировка юнитов")]
+    public TextMeshProUGUI tier2LvlText;
+    public TextMeshProUGUI tier2PriceText;
+    public TextMeshProUGUI tier3LvlText;
+    public TextMeshProUGUI tier3PriceText;
+    public TextMeshProUGUI tier4LvlText;
+    public TextMeshProUGUI tier4PriceText;
+
     // Цены на улучшения (массив по уровням)
     int[] upgradeCosts = { 250, 600, 1500, 4000, 10000 };
+    // Цены на разблокировку тиров
+    int tierUnlockCostTier2 = 500;
+    int tierUnlockCostTier3 = 1500;
+    int tierUnlockCostTier4 = 5000;
 
     void Start()
     {
@@ -179,6 +191,18 @@ public class MainMenuController : MonoBehaviour
         UpdateUpgradeItem("Upgrade_Reward", rewardUpgradeLvlText, rewardPriceText);
         UpdateUpgradeItem("Upgrade_Discount", discountUpgradeLvlText, discountPriceText);
         UpdateUpgradeItem("Upgrade_StartMoney", startMoneyUpgradeLvlText, startMoneyPriceText);
+
+        // Обновляем разблокировку тиров
+        UpdateTierUnlockItem("Unlock_Tier2", tier2LvlText, tier2PriceText, tierUnlockCostTier2);
+        UpdateTierUnlockItem("Unlock_Tier3", tier3LvlText, tier3PriceText, tierUnlockCostTier3);
+        UpdateTierUnlockItem("Unlock_Tier4", tier4LvlText, tier4PriceText, tierUnlockCostTier4);
+    }
+
+    void UpdateTierUnlockItem(string key, TextMeshProUGUI lvlTxt, TextMeshProUGUI priceTxt, int cost)
+    {
+        bool unlocked = PlayerPrefs.GetInt(key, 0) >= 1;
+        if (lvlTxt != null) lvlTxt.text = unlocked ? "ОТКРЫТ" : "ЗАКРЫТ";
+        if (priceTxt != null) priceTxt.text = unlocked ? "---" : cost.ToString();
     }
 
     void UpdateUpgradeItem(string key, TextMeshProUGUI lvlTxt, TextMeshProUGUI priceTxt)
@@ -224,6 +248,35 @@ public class MainMenuController : MonoBehaviour
     public void BuyReward() => BuyUpgrade("Upgrade_Reward");
     public void BuyDiscount() => BuyUpgrade("Upgrade_Discount");
     public void BuyStartMoney() => BuyUpgrade("Upgrade_StartMoney");
+
+    // Методы для разблокировки тиров
+    public void BuyTier2() => BuyTierUnlock("Unlock_Tier2", tierUnlockCostTier2);
+    public void BuyTier3() => BuyTierUnlock("Unlock_Tier3", tierUnlockCostTier3);
+    public void BuyTier4() => BuyTierUnlock("Unlock_Tier4", tierUnlockCostTier4);
+
+    void BuyTierUnlock(string key, int cost)
+    {
+        if (PlayerPrefs.GetInt(key, 0) >= 1)
+        {
+            Debug.Log("Этот юнит уже открыт!");
+            return;
+        }
+
+        int coins = PlayerPrefs.GetInt("PlayerCoins", 0);
+        if (coins >= cost)
+        {
+            PlayerPrefs.SetInt("PlayerCoins", coins - cost);
+            PlayerPrefs.SetInt(key, 1);
+            PlayerPrefs.Save();
+            UpdateShopUI();
+            UpdateUI();
+            Debug.Log($"[Магазин] {key} куплен!");
+        }
+        else
+        {
+            Debug.Log("Недостаточно монет!");
+        }
+    }
 
     // ========== ЧИТЫ / ТЕСТ ==========
 

@@ -120,7 +120,7 @@ public class MainMenuSetup : EditorWindow
         shopVlg.spacing = 15;
         shopContainer.GetComponent<RectTransform>().sizeDelta = new Vector2(800, 600);
 
-        // Создаем 4 строки магазина
+        // Создаем строки магазина — улучшения
         TextMeshProUGUI hpLvl, hpPrice;
         Button buyHp = CreateShopRow(shopContainer.transform, "КРЕПКИЕ СТЕНЫ (+HP)", out hpLvl, out hpPrice);
 
@@ -131,7 +131,17 @@ public class MainMenuSetup : EditorWindow
         Button buyDisc = CreateShopRow(shopContainer.transform, "СКИДКИ (-COST)", out discLvl, out discPrice);
 
         TextMeshProUGUI smLvl, smPrice;
-        Button buySm = CreateShopRow(shopContainer.transform, "ИНВЕСТИЦИИ (+START MONEY)", out smLvl, out smPrice);
+        Button buySm = CreateShopRow(shopContainer.transform, "ИНВЕСТИЦИИ (+START $)", out smLvl, out smPrice);
+
+        // Создаем строки магазина — разблокировка юнитов
+        TextMeshProUGUI t2Lvl, t2Price;
+        Button buyT2 = CreateShopRow(shopContainer.transform, "ОТКРЫТЬ TIER 2", out t2Lvl, out t2Price);
+
+        TextMeshProUGUI t3Lvl, t3Price;
+        Button buyT3 = CreateShopRow(shopContainer.transform, "ОТКРЫТЬ TIER 3", out t3Lvl, out t3Price);
+
+        TextMeshProUGUI t4Lvl, t4Price;
+        Button buyT4 = CreateShopRow(shopContainer.transform, "ОТКРЫТЬ TIER 4", out t4Lvl, out t4Price);
 
         Button sBackBtn = CreateStyledButton(shopPanel.transform, "BackToMainBtn", "НАЗАД", 200, 60, Color.gray);
         sBackBtn.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -450);
@@ -157,6 +167,13 @@ public class MainMenuSetup : EditorWindow
         menuController.discountPriceText = discPrice;
         menuController.startMoneyUpgradeLvlText = smLvl;
         menuController.startMoneyPriceText = smPrice;
+
+        menuController.tier2LvlText = t2Lvl;
+        menuController.tier2PriceText = t2Price;
+        menuController.tier3LvlText = t3Lvl;
+        menuController.tier3PriceText = t3Price;
+        menuController.tier4LvlText = t4Lvl;
+        menuController.tier4PriceText = t4Price;
 
         // Поиск уровней и префаба
         string[] levelGuids = AssetDatabase.FindAssets("t:LevelData");
@@ -197,6 +214,10 @@ public class MainMenuSetup : EditorWindow
         AddClick(buyRew, menuController, "BuyReward");
         AddClick(buyDisc, menuController, "BuyDiscount");
         AddClick(buySm, menuController, "BuyStartMoney");
+
+        AddClick(buyT2, menuController, "BuyTier2");
+        AddClick(buyT3, menuController, "BuyTier3");
+        AddClick(buyT4, menuController, "BuyTier4");
 
         EditorUtility.DisplayDialog("Готово!", "Сцена Главного Меню настроена!\nНе забудьте сохранить сцену (Ctrl+S) и добавить в Build Settings.", "OK");
     }

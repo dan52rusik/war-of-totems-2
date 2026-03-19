@@ -470,7 +470,7 @@ public class GameManager : MonoBehaviour
         tr.id = id;
         tr.set_parameters();
         
-        Vector3 trans = new Vector3(-9f,-3f,0f);
+        Vector3 trans = new Vector3(-9f, Random.Range(-2.5f, -3.3f), 0f);
         GameObject gm = Instantiate(troop, trans, Quaternion.identity);
         gm.transform.parent = gameObject.transform;
         gm.transform.localPosition = trans;
@@ -513,7 +513,7 @@ public class GameManager : MonoBehaviour
         tr.ranged_damage = (int)(tr.ranged_damage * diff);
         tr.health = (int)(tr.health * diff);
 
-        Vector3 trans = new Vector3(9f, -3f, 0f);
+        Vector3 trans = new Vector3(9f, Random.Range(-2.5f, -3.3f), 0f);
         GameObject gm = Instantiate(troop, trans, Quaternion.identity);
         Troop troop_script = gm.GetComponent<Troop>();
         gm.transform.parent = gameObject.transform;

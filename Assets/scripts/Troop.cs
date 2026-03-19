@@ -74,57 +74,42 @@ public class Troop : MonoBehaviour
         //
         if (isPlayer)
         {
-            if (next_troop == null)
+            // Дошли до базы врага
+            if (gameObject.transform.localPosition.x >= 9f)
             {
-                if (gameObject.transform.localPosition.x >= 9f)
+                is_moving = false;
+            }
+            // Есть враги — проверяем дистанцию до ближайшего
+            if (game_manager.enemy_troops_queue.Count > 0)
+            {
+                GameObject first_enemy = game_manager.enemy_troops_queue[0];
+                if (first_enemy != null)
                 {
-                    is_moving = false;
-                }
-                if (game_manager.enemy_troops_queue.Count > 0)
-                {
-                    GameObject first_enemy = game_manager.enemy_troops_queue[0];
                     additonal.text = "" + (first_enemy.transform.position.x - gameObject.transform.position.x) * data.COEFF + "   " + (first_enemy.transform.position.x - gameObject.transform.position.x);
-
                     if ((first_enemy.transform.position.x - gameObject.transform.position.x) * data.COEFF <= data.MIN_DISTANCE)
                     {
                         is_moving = false;
                     }
                 }
-                
-            }
-            else
-            {
-                Troop nxt = next_troop.GetComponent<Troop>();
-
-                if ((next_troop.transform.position.x - gameObject.transform.position.x) * data.COEFF - nxt.troop_data.length <= data.MIN_DISTANCE)
-                {
-                    is_moving = false;
-                }
             }
         }
         else
         {
-            if (next_troop == null)
+            // Дошли до базы игрока
+            if (gameObject.transform.localPosition.x <= -9f)
             {
-                if (gameObject.transform.localPosition.x <= -9f)
+                is_moving = false;
+            }
+            // Есть враги — проверяем дистанцию
+            if (game_manager.player_troops_queue.Count > 0)
+            {
+                GameObject first_enemy = game_manager.player_troops_queue[0];
+                if (first_enemy != null)
                 {
-                    is_moving = false;
-                }
-                if (game_manager.player_troops_queue.Count > 0)
-                {
-                    GameObject first_enemy = game_manager.player_troops_queue[0];
                     if ((gameObject.transform.position.x - first_enemy.transform.position.x) * data.COEFF <= data.MIN_DISTANCE)
                     {
                         is_moving = false;
                     }
-                }
-            }
-            else
-            {
-                Troop nxt = next_troop.GetComponent<Troop>();
-                if ((gameObject.transform.position.x - next_troop.transform.position.x) * data.COEFF - nxt.troop_data.length <= data.MIN_DISTANCE)
-                {
-                    is_moving = false;
                 }
             }
         }
@@ -422,6 +407,30 @@ public class Troop : MonoBehaviour
         try_moving();
         try_attacking();
         try_dying();
+        UpdateDepthSorting();
+    }
+
+    /// <summary>
+    /// 2.5D глубина: юниты ниже на экране — ближе к камере (крупнее, поверх)
+    /// </summary>
+    void UpdateDepthSorting()
+    {
+        // Сортировка: чем ниже Y, тем больше sortingOrder (рисуется поверх)
+        if (spriteR != null)
+        {
+            spriteR.sortingOrder = Mathf.RoundToInt(-transform.position.y * 100f);
+        }
+
+        // Масштаб по глубине: ниже = крупнее (ближе к камере)
+        float baseScale = 1f;
+        float depthFactor = Mathf.InverseLerp(-2.5f, -3.3f, transform.localPosition.y);
+        float scale = Mathf.Lerp(baseScale * 0.85f, baseScale * 1.1f, depthFactor);
+
+        float xSign = isPlayer ? 1f : -1f;
+        if (!info) // В тестах модель не переворачивается
+        {
+            transform.localScale = new Vector3(xSign * scale, scale, 1f);
+        }
     }
 
     IEnumerator Regenerate()

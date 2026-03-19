@@ -210,28 +210,20 @@ public class GameSceneSetup : EditorWindow
         bottomLayout.childForceExpandWidth = false;
         bottomLayout.childForceExpandHeight = false;
 
-        // --- Секция юнитов ---
-        GameObject troopSection = CreateSection(bottomBar.transform, "TroopSection", "ЮНИТЫ", 500);
+        // --- Секция юнитов (ЕДИНСТВЕННАЯ) ---
+        GameObject troopSection = CreateSection(bottomBar.transform, "TroopSection", "ЮНИТЫ", 800);
 
         Button[] troopButtons = new Button[4];
         TextMeshProUGUI[] troopCostTexts = new TextMeshProUGUI[4];
 
         string[] troopNames = { "Tier 1", "Tier 2", "Tier 3", "Tier 4" };
         Color[] troopColors = {
-            new Color(0.2f, 0.45f, 0.2f),    // зелёный
-            new Color(0.2f, 0.35f, 0.55f),   // синий
-            new Color(0.45f, 0.2f, 0.5f),    // фиолетовый
-            new Color(0.6f, 0.45f, 0.1f)     // золотой
+            new Color(0.2f, 0.45f, 0.2f),
+            new Color(0.2f, 0.35f, 0.55f),
+            new Color(0.45f, 0.2f, 0.5f),
+            new Color(0.6f, 0.45f, 0.1f)
         };
         string[] troopCosts = { "15", "25", "100", "150K" };
-
-        HorizontalLayoutGroup troopLayout = troopSection.GetComponentInChildren<HorizontalLayoutGroup>();
-        if (troopLayout == null)
-        {
-            // Получаем контейнер кнопок внутри секции
-            Transform btnContainer = troopSection.transform.GetChild(1); // ButtonContainer
-            troopLayout = btnContainer.GetComponent<HorizontalLayoutGroup>();
-        }
 
         Transform troopBtnParent = troopSection.transform.Find("ButtonContainer");
         for (int i = 0; i < 4; i++)
@@ -241,49 +233,6 @@ public class GameSceneSetup : EditorWindow
                 troopNames[i], troopCosts[i], troopColors[i], out costText);
             troopCostTexts[i] = costText;
         }
-
-        // --- Разделитель ---
-        CreateSeparator(bottomBar.transform);
-
-        // --- Секция башен ---
-        GameObject turretSection = CreateSection(bottomBar.transform, "TurretSection", "БАШНИ", 340);
-
-        Button[] turretButtons = new Button[3];
-        TextMeshProUGUI[] turretCostTexts = new TextMeshProUGUI[3];
-
-        string[] turretNames = { "T1", "T2", "T3" };
-        Color turretColor = new Color(0.35f, 0.25f, 0.15f);
-        string[] turretCosts = { "100", "200", "500" };
-
-        Transform turretBtnParent = turretSection.transform.Find("ButtonContainer");
-        for (int i = 0; i < 3; i++)
-        {
-            TextMeshProUGUI costText;
-            turretButtons[i] = CreateUnitButton(turretBtnParent, "TurretBtn" + (i + 1),
-                turretNames[i], turretCosts[i], turretColor, out costText);
-            turretCostTexts[i] = costText;
-        }
-
-        // --- Разделитель ---
-        CreateSeparator(bottomBar.transform);
-
-        // --- Секция действий ---
-        GameObject actionSection = CreateSection(bottomBar.transform, "ActionSection", "ДЕЙСТВИЯ", 460);
-        Transform actionBtnParent = actionSection.transform.Find("ButtonContainer");
-
-        TextMeshProUGUI slotCostDummy, ageCostDummy;
-        Button buySlotButton = CreateUnitButton(actionBtnParent, "BuySlotBtn",
-            "+ Слот", "1000", new Color(0.15f, 0.3f, 0.35f), out slotCostDummy);
-        TextMeshProUGUI slotsText = slotCostDummy; // будем переиспользовать текст стоимости для слотов
-
-        Button upgradeAgeButton = CreateUnitButton(actionBtnParent, "UpgradeAgeBtn",
-            "Эпоха", "4000 XP", new Color(0.1f, 0.2f, 0.5f), out ageCostDummy);
-        TextMeshProUGUI upgradeAgeCostText = ageCostDummy;
-
-        TextMeshProUGUI abilityCostDummy;
-        Button abilityButton = CreateUnitButton(actionBtnParent, "AbilityBtn",
-            "Скилл", "ГОТОВО", new Color(0.5f, 0.15f, 0.15f), out abilityCostDummy);
-        TextMeshProUGUI abilityCooldownText = abilityCostDummy;
 
         // ===================== WIN PANEL =====================
         GameObject winPanel = CreateResultPanel(canvasObj.transform, "WinPanel",
@@ -323,11 +272,6 @@ public class GameSceneSetup : EditorWindow
         AddButtonEvent(troopButtons[1], uiController, "OnSpawnTier2");
         AddButtonEvent(troopButtons[2], uiController, "OnSpawnTier3");
         AddButtonEvent(troopButtons[3], uiController, "OnSpawnTier4");
-
-        // Подключаем действия
-        AddButtonEvent(buySlotButton, uiController, "BuySlot");
-        AddButtonEvent(upgradeAgeButton, uiController, "UpgradeAge");
-        AddButtonEvent(abilityButton, uiController, "UseAbility");
 
         // Подключаем панели победы/поражения через LevelManager
         LevelManager lm = levelManagerObj.GetComponent<LevelManager>();
@@ -393,10 +337,6 @@ public class GameSceneSetup : EditorWindow
         uiController.losePanel = losePanel;
         uiController.pausePanel = pausePanel;
         uiController.troopButtons = troopButtons;
-        uiController.turretButtons = turretButtons;
-        uiController.buySlotButton = buySlotButton;
-        uiController.upgradeAgeButton = upgradeAgeButton;
-        uiController.abilityButton = abilityButton;
 
         // Кнопки паузы и скорости
         AddButtonEvent(pauseBtn, lm, "OnPauseButton");
@@ -404,23 +344,6 @@ public class GameSceneSetup : EditorWindow
 
         // LevelManager
         levelManager.gameHUD = uiController;
-
-        // Wire button OnClick events
-        // Troop buttons → PlayerController
-        AddButtonEvent(troopButtons[0], playerController, "OnSpawnTroop1");
-        AddButtonEvent(troopButtons[1], playerController, "OnSpawnTroop2");
-        AddButtonEvent(troopButtons[2], playerController, "OnSpawnTroop3");
-        AddButtonEvent(troopButtons[3], playerController, "OnSpawnTroop4");
-
-        // Turret buttons → PlayerController
-        AddButtonEvent(turretButtons[0], playerController, "OnSpawnTurret1");
-        AddButtonEvent(turretButtons[1], playerController, "OnSpawnTurret2");
-        AddButtonEvent(turretButtons[2], playerController, "OnSpawnTurret3");
-
-        // Action buttons → PlayerController
-        AddButtonEvent(buySlotButton, playerController, "OnBuySlot");
-        AddButtonEvent(upgradeAgeButton, playerController, "OnUpgradeAge");
-        AddButtonEvent(abilityButton, playerController, "OnUseAbility");
 
         // Control buttons → LevelManager
         AddButtonEvent(pauseBtn, levelManager, "OnPauseButton");
