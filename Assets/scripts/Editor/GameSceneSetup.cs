@@ -424,24 +424,30 @@ public class GameSceneSetup : EditorWindow
         Button btn = btnObj.AddComponent<Button>();
         ColorBlock colors = btn.colors;
         colors.normalColor = Color.white;
-        colors.highlightedColor = new Color(1.2f, 1.2f, 1.2f);
-        colors.pressedColor = new Color(0.8f, 0.8f, 0.8f);
-        colors.disabledColor = new Color(0.4f, 0.4f, 0.4f, 0.6f);
+        colors.highlightedColor = new Color(1.25f, 1.25f, 1.3f);
+        colors.pressedColor = new Color(0.7f, 0.7f, 0.75f);
+        colors.disabledColor = new Color(0.35f, 0.35f, 0.35f, 0.5f);
         btn.colors = colors;
 
-        // Outline
+        // Обводка
         Outline outline = btnObj.AddComponent<Outline>();
-        outline.effectColor = new Color(1, 1, 1, 0.15f);
+        outline.effectColor = new Color(1f, 1f, 1f, 0.22f);
         outline.effectDistance = new Vector2(1, -1);
 
         // Текст на кнопке
-        buttonText = CreateTMPText(btnObj.transform, "Text", text, 18, Color.white, width - 10);
+        buttonText = CreateTMPText(btnObj.transform, "Text", text, 20, Color.white, width - 10);
         RectTransform textRect = buttonText.GetComponent<RectTransform>();
         textRect.anchorMin = Vector2.zero;
         textRect.anchorMax = Vector2.one;
         textRect.sizeDelta = Vector2.zero;
         textRect.anchoredPosition = Vector2.zero;
         buttonText.alignment = TextAlignmentOptions.Center;
+        buttonText.fontStyle = FontStyles.Bold;
+
+        // Тень текста
+        Shadow textShadow = buttonText.gameObject.AddComponent<Shadow>();
+        textShadow.effectColor = new Color(0, 0, 0, 0.5f);
+        textShadow.effectDistance = new Vector2(1, -1);
 
         return btn;
     }
@@ -547,63 +553,102 @@ public class GameSceneSetup : EditorWindow
 
     static GameObject CreateResultPanel(Transform parent, string name, string title, Color bgColor)
     {
-        // Фон (затемнение)
+        // === Полноэкранный затемняющий фон ===
         GameObject panel = new GameObject(name);
         panel.transform.SetParent(parent, false);
         RectTransform panelRect = panel.AddComponent<RectTransform>();
         panelRect.anchorMin = Vector2.zero;
         panelRect.anchorMax = Vector2.one;
-        panelRect.sizeDelta = Vector2.zero;
+        panelRect.offsetMin = Vector2.zero;
+        panelRect.offsetMax = Vector2.zero;
         Image panelBg = panel.AddComponent<Image>();
-        panelBg.color = new Color(0, 0, 0, 0.7f);
+        panelBg.color = new Color(0f, 0f, 0f, 0.82f);
 
-        // Центральный блок
-        GameObject centerBlock = new GameObject("CenterBlock");
-        centerBlock.transform.SetParent(panel.transform, false);
-        RectTransform centerRect = centerBlock.AddComponent<RectTransform>();
-        centerRect.anchorMin = new Vector2(0.5f, 0.5f);
-        centerRect.anchorMax = new Vector2(0.5f, 0.5f);
-        centerRect.sizeDelta = new Vector2(500, 300);
-        Image centerBg = centerBlock.AddComponent<Image>();
-        centerBg.color = bgColor;
+        // === Центральная карточка ===
+        GameObject card = new GameObject("CenterBlock");
+        card.transform.SetParent(panel.transform, false);
+        RectTransform cardRect = card.AddComponent<RectTransform>();
+        cardRect.anchorMin = new Vector2(0.5f, 0.5f);
+        cardRect.anchorMax = new Vector2(0.5f, 0.5f);
+        cardRect.pivot = new Vector2(0.5f, 0.5f);
+        cardRect.sizeDelta = new Vector2(560, 340);
+        cardRect.anchoredPosition = Vector2.zero;
 
-        Outline centerOutline = centerBlock.AddComponent<Outline>();
-        centerOutline.effectColor = new Color(1, 1, 1, 0.2f);
-        centerOutline.effectDistance = new Vector2(2, -2);
+        Image cardBg = card.AddComponent<Image>();
+        cardBg.color = bgColor;
 
-        VerticalLayoutGroup vlg = centerBlock.AddComponent<VerticalLayoutGroup>();
-        vlg.spacing = 15;
-        vlg.padding = new RectOffset(20, 20, 30, 30);
-        vlg.childAlignment = TextAnchor.MiddleCenter;
-        vlg.childControlWidth = false;
-        vlg.childControlHeight = false;
-        vlg.childForceExpandWidth = false;
-        vlg.childForceExpandHeight = false;
+        // Обводка карточки
+        Outline cardOutline = card.AddComponent<Outline>();
+        cardOutline.effectColor = new Color(1f, 1f, 1f, 0.18f);
+        cardOutline.effectDistance = new Vector2(3, -3);
 
-        // Заголовок
-        TextMeshProUGUI titleText = CreateTMPText(centerBlock.transform, "TitleText", title,
-            42, Color.white, 450);
-        titleText.GetComponent<RectTransform>().sizeDelta = new Vector2(450, 60);
-        titleText.alignment = TextAlignmentOptions.Center;
-        titleText.fontStyle = FontStyles.Bold;
+        // === Заголовок (ПОБЕДА! / ПОРАЖЕНИЕ!) ===
+        GameObject titleObj = new GameObject("TitleText");
+        titleObj.transform.SetParent(card.transform, false);
+        RectTransform titleRect = titleObj.AddComponent<RectTransform>();
+        titleRect.anchorMin = new Vector2(0f, 1f);
+        titleRect.anchorMax = new Vector2(1f, 1f);
+        titleRect.pivot = new Vector2(0.5f, 1f);
+        titleRect.sizeDelta = new Vector2(0, 85);
+        titleRect.anchoredPosition = new Vector2(0, -30);
+        TextMeshProUGUI titleTmp = titleObj.AddComponent<TextMeshProUGUI>();
+        titleTmp.text = title;
+        titleTmp.fontSize = 52;
+        titleTmp.fontStyle = FontStyles.Bold;
+        titleTmp.alignment = TextAlignmentOptions.Center;
+        titleTmp.color = Color.white;
 
-        // Подтекст
-        TextMeshProUGUI subText = CreateTMPText(centerBlock.transform, "SubText", "",
-            24, new Color(1f, 0.85f, 0.3f), 450);
-        subText.GetComponent<RectTransform>().sizeDelta = new Vector2(450, 40);
-        subText.alignment = TextAlignmentOptions.Center;
+        // Тень заголовка
+        Shadow titleShadow = titleObj.AddComponent<Shadow>();
+        titleShadow.effectColor = new Color(0, 0, 0, 0.6f);
+        titleShadow.effectDistance = new Vector2(2, -2);
 
-        // Контейнер кнопок
+        // === Декоративная линия под заголовком ===
+        GameObject line = new GameObject("Divider");
+        line.transform.SetParent(card.transform, false);
+        RectTransform lineRect = line.AddComponent<RectTransform>();
+        lineRect.anchorMin = new Vector2(0.1f, 1f);
+        lineRect.anchorMax = new Vector2(0.9f, 1f);
+        lineRect.pivot = new Vector2(0.5f, 1f);
+        lineRect.sizeDelta = new Vector2(0, 2);
+        lineRect.anchoredPosition = new Vector2(0, -125);
+        Image lineImg = line.AddComponent<Image>();
+        lineImg.color = new Color(1f, 1f, 1f, 0.15f);
+
+        // === Подтекст (награда) ===
+        GameObject subObj = new GameObject("SubText");
+        subObj.transform.SetParent(card.transform, false);
+        RectTransform subRect = subObj.AddComponent<RectTransform>();
+        subRect.anchorMin = new Vector2(0f, 1f);
+        subRect.anchorMax = new Vector2(1f, 1f);
+        subRect.pivot = new Vector2(0.5f, 1f);
+        subRect.sizeDelta = new Vector2(0, 45);
+        subRect.anchoredPosition = new Vector2(0, -140);
+        TextMeshProUGUI subTmp = subObj.AddComponent<TextMeshProUGUI>();
+        subTmp.text = "";
+        subTmp.fontSize = 24;
+        subTmp.alignment = TextAlignmentOptions.Center;
+        subTmp.color = new Color(1f, 0.88f, 0.35f);
+        subTmp.fontStyle = FontStyles.Bold;
+
+        // === Контейнер кнопок (фиксированный, по центру снизу) ===
         GameObject btnContainer = new GameObject("ButtonContainer");
-        btnContainer.transform.SetParent(centerBlock.transform, false);
-        RectTransform btnRect = btnContainer.AddComponent<RectTransform>();
-        btnRect.sizeDelta = new Vector2(450, 60);
+        btnContainer.transform.SetParent(card.transform, false);
+        RectTransform btnContRect = btnContainer.AddComponent<RectTransform>();
+        btnContRect.anchorMin = new Vector2(0f, 0f);
+        btnContRect.anchorMax = new Vector2(1f, 0f);
+        btnContRect.pivot = new Vector2(0.5f, 0f);
+        btnContRect.sizeDelta = new Vector2(0, 65);
+        btnContRect.anchoredPosition = new Vector2(0, 30);
 
         HorizontalLayoutGroup hlg = btnContainer.AddComponent<HorizontalLayoutGroup>();
-        hlg.spacing = 15;
+        hlg.spacing = 14;
+        hlg.padding = new RectOffset(24, 24, 0, 0);
         hlg.childAlignment = TextAnchor.MiddleCenter;
-        hlg.childControlWidth = false;
-        hlg.childControlHeight = false;
+        hlg.childControlWidth = true;
+        hlg.childControlHeight = true;
+        hlg.childForceExpandWidth = true;
+        hlg.childForceExpandHeight = true;
 
         return panel;
     }
