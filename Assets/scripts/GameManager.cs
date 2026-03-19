@@ -106,10 +106,6 @@ public class GameManager : MonoBehaviour
     }
     public void check_game_status()
     {
-        if(xp > 7000000 && player_troops[3] < 3)
-        {
-            game_status = 1;
-        }
         if (player_hp < 0)
         {
             game_status = 1;
@@ -120,13 +116,6 @@ public class GameManager : MonoBehaviour
             game_status = 2;
             end_game();
         }
-        else if(enemy_hp < 0)
-        {
-            print("entered else");
-            // sometimes the ai has a stroke of luck and wins in the second or fourth age but the result can t be reproduced consistently
-            enemy_hp += 1000;
-        }
-
     }
     public void act1(int action1) {
         if (player_troops_queue.Count >= 20)
@@ -463,9 +452,9 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI status;
     void update_text()
     {
-        money_txt.text = " money " + money;
-        xp_txt.text = "xp " + xp;
-        status.text = "Game " + identifier + " T4 troops " + player_troops[3] ;
+        // money_txt.text = " money " + money;
+        // xp_txt.text = "xp " + xp;
+        // status.text = "Game " + identifier + " T4 troops " + player_troops[3] ;
     }
 
     public void spawn_player_troop(int tier, int age = 0)
@@ -582,6 +571,13 @@ public class GameManager : MonoBehaviour
     }
     public void upgrade_age_enemy()
     {
+        // Проверка максимальной эпохи из Enemy_AI
+        Enemy_AI ai = GetComponent<Enemy_AI>();
+        if (ai != null && enemy_age >= ai.maxAge)
+        {
+            return;
+        }
+
         Base b = enemy_base.GetComponent<Base>();
         enemy_hp += od.base_hp[enemy_age] - od.base_hp[enemy_age - 1];
         enemy_age += 1;

@@ -209,8 +209,14 @@ public class Turret : MonoBehaviour
     void manage_sprites()
     {
         int id = turret_data.id;
-        //spriteR = gameObject.GetComponent<SpriteRenderer>();
-        spriteR.sprite = data.turret_sprites[id];
+        if (data.turret_sprites != null && id >= 0 && id < data.turret_sprites.Length)
+        {
+            spriteR.sprite = data.turret_sprites[id];
+        }
+        else
+        {
+            Debug.LogWarning($"[Turret] Спрайт не найден для id={id}. Массив turret_sprites: {(data.turret_sprites != null ? data.turret_sprites.Length : 0)} элементов.");
+        }
     }
 
     void Start()

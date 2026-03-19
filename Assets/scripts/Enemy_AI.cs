@@ -40,12 +40,20 @@ public class Enemy_AI : MonoBehaviour
     public GameManager game_manager;
     public int unit_level = 0;
 
+    // Параметры, настраиваемые из LevelData
+    [HideInInspector] public int maxTroops = 6;
+    [HideInInspector] public float spawnChance = 0.3f;
+    [HideInInspector] public int maxAge = 5;
+    [HideInInspector] public int tier2Frames = 1500;
+    [HideInInspector] public int tier3Frames = 5000;
+    [HideInInspector] public int ageUpFrames = 8000;
+
     public void Protocol_age1()
     {
         unit_level = 0;
-        StartCoroutine(upgrade_unity_level(1500));
-        StartCoroutine(upgrade_unity_level(5000));
-        StartCoroutine(upgrade_age(8000));
+        StartCoroutine(upgrade_unity_level(tier2Frames));
+        StartCoroutine(upgrade_unity_level(tier3Frames));
+        if (maxAge >= 2) StartCoroutine(upgrade_age(ageUpFrames));
 
         StartCoroutine(buy_turret(1000, 0, 0));
 
@@ -58,9 +66,9 @@ public class Enemy_AI : MonoBehaviour
     public void Protocol_age2()
     {
         unit_level = 0;
-        StartCoroutine(upgrade_unity_level(1500));
-        StartCoroutine(upgrade_unity_level(5000));
-        StartCoroutine(upgrade_age(8000));
+        StartCoroutine(upgrade_unity_level(tier2Frames));
+        StartCoroutine(upgrade_unity_level(tier3Frames));
+        if (maxAge >= 3) StartCoroutine(upgrade_age(ageUpFrames));
 
         StartCoroutine(sell_turret(950, 0));
         StartCoroutine(buy_turret(1000, 0, 0));
@@ -74,9 +82,9 @@ public class Enemy_AI : MonoBehaviour
     {
 
         unit_level = 0;
-        StartCoroutine(upgrade_unity_level(1500));
-        StartCoroutine(upgrade_unity_level(5000));
-        StartCoroutine(upgrade_age(8000));
+        StartCoroutine(upgrade_unity_level(tier2Frames));
+        StartCoroutine(upgrade_unity_level(tier3Frames));
+        if (maxAge >= 4) StartCoroutine(upgrade_age(ageUpFrames));
 
         StartCoroutine(sell_turret(950, 0));
         StartCoroutine(buy_turret(1000, 0, 0));
@@ -91,9 +99,9 @@ public class Enemy_AI : MonoBehaviour
     public void Protocol_age4()
     {
         unit_level = 0;
-        StartCoroutine(upgrade_unity_level(1500));
-        StartCoroutine(upgrade_unity_level(5000));
-        StartCoroutine(upgrade_age(8000));
+        StartCoroutine(upgrade_unity_level(tier2Frames));
+        StartCoroutine(upgrade_unity_level(tier3Frames));
+        if (maxAge >= 5) StartCoroutine(upgrade_age(ageUpFrames));
 
         StartCoroutine(buy_turret(5000, 0, 0));
 
@@ -156,16 +164,10 @@ public class Enemy_AI : MonoBehaviour
     {
         yield return new WaitForSeconds(1f);
         float spawn = Random.Range(0f, 1f);
-        if(spawn < 0.3f && game_manager.enemy_troops_queue.Count<6)
+        if(spawn < spawnChance && game_manager.enemy_troops_queue.Count < maxTroops)
         {
-            //print("spawned");
             int unit_type = Random.Range(0, unit_level+1);
             game_manager.dispatch_spawn_troop(unit_type, false);
-        }else
-        {
-            /*print(game_manager.enemy_troops_queue.Count );
-            print(spawn);
-            print("\n");*/
         }
 
         StartCoroutine(Spawn_troops());

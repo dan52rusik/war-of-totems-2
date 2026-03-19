@@ -32,7 +32,10 @@ public class Base : MonoBehaviour
         {
             age = game_manager.enemy_age;
         }
-        Renderer.sprite = Sprites[age - 1];
+        if (Sprites != null && age - 1 >= 0 && age - 1 < Sprites.Length)
+        {
+            Renderer.sprite = Sprites[age - 1];
+        }
     }
 
     public void take_damage(int damage)
