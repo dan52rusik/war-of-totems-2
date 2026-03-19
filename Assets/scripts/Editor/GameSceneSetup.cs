@@ -115,7 +115,7 @@ public class GameSceneSetup : EditorWindow
             camObj.tag = "MainCamera";
             mainCam = camObj.AddComponent<Camera>();
             mainCam.orthographic = true;
-            mainCam.orthographicSize = 7f;
+            mainCam.orthographicSize = 5.4f;
             mainCam.backgroundColor = new Color(0.1f, 0.1f, 0.15f);
             mainCam.clearFlags = CameraClearFlags.SolidColor;
             mainCam.nearClipPlane = 0.3f;
@@ -134,7 +134,7 @@ public class GameSceneSetup : EditorWindow
 
         CanvasScaler scaler = canvasObj.AddComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        scaler.referenceResolution = new Vector2(1920, 1080);
+        scaler.referenceResolution = new Vector2(1280, 720);
         scaler.matchWidthOrHeight = 0.5f;
 
         canvasObj.AddComponent<GraphicRaycaster>();

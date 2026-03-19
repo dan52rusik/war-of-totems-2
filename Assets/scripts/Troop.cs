@@ -999,7 +999,7 @@ public class Troop : MonoBehaviour
         // Масштаб по глубине: ниже = крупнее (ближе к камере)
         float baseScale = 1f;
         float depthFactor = Mathf.InverseLerp(-2.5f, -3.3f, transform.localPosition.y);
-        float scale = Mathf.Lerp(baseScale * 0.85f, baseScale * 1.1f, depthFactor) * visualScaleMultiplier;
+        float scale = Mathf.Lerp(baseScale * 1.05f, baseScale * 1.35f, depthFactor) * visualScaleMultiplier;
 
         float xSign = isPlayer ? 1f : -1f;
         if (!info) // В тестах модель не переворачивается

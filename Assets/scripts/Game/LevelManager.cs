@@ -255,18 +255,39 @@ public class LevelManager : MonoBehaviour
     void AlignCamera()
     {
         if (Camera.main == null) return;
-        Camera.main.transform.position = currentEnvironment.transform.position
-            + new Vector3(0f, 0.0f, -10.99119f);
+        Camera cam = Camera.main;
+        cam.transform.position = currentEnvironment.transform.position
+            + new Vector3(0f, 0.15f, -10.99119f);
+
+        float aspect = (float)Screen.width / Mathf.Max(1, Screen.height);
+        float targetSize;
+
+        if (aspect < 0.7f)
+            targetSize = 4.2f; // портретные экраны
+        else if (aspect < 1.2f)
+            targetSize = 4.8f; // почти квадратные / планшеты
+        else
+            targetSize = 5.4f; // обычный ландшафт
+
+        cam.orthographicSize = targetSize;
     }
 
     void HideOldUI()
     {
         // Ищем надписи по именам, которые были в оригинале
-        string[] oldNames = { "status", "money_txt", "xp_txt", "money (1)", "xp (1)" };
+        string[] oldNames = { "status", "money_txt", "xp_txt", "money (1)", "xp (1)", "New Text" };
         foreach (var name in oldNames)
         {
             var obj = GameObject.Find(name);
             if (obj != null) obj.SetActive(false);
+        }
+
+        foreach (var tmp in FindObjectsByType<TextMeshProUGUI>(FindObjectsSortMode.None))
+        {
+            if (tmp != null && !string.IsNullOrWhiteSpace(tmp.text) && tmp.text.Trim() == "New Text")
+            {
+                tmp.gameObject.SetActive(false);
+            }
         }
     }
 
