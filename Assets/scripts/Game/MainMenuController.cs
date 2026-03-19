@@ -163,8 +163,9 @@ public class MainMenuController : MonoBehaviour
             Button btn = btnObj.GetComponent<Button>();
             btn.interactable = isUnlocked;
 
-            // Привязка клика
-            btn.onClick.AddListener(() => StartLevel(level));
+            // Привязка клика (используем локальную переменную для корректного замыкания)
+            var currentLevel = level;
+            btn.onClick.AddListener(() => StartLevel(currentLevel));
 
             // Визуальное состояние заблокированного уровня
             if (!isUnlocked)

@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using TMPro;
 
 /// <summary>
 /// Управляет жизненным циклом игрового уровня:
@@ -32,6 +33,22 @@ public class LevelManager : MonoBehaviour
 
     void Start()
     {
+        // 1. Пытаемся загрузить уровень, выбранный в Главном Меню
+        int levelToLoad = PlayerPrefs.GetInt("CurrentLevelToLoad", -1);
+        if (levelToLoad > 0)
+        {
+            Debug.Log("[LevelManager] Пытаюсь загрузить уровень #" + levelToLoad);
+            LevelData selected = FindLevelByNumber(levelToLoad);
+            if (selected != null)
+            {
+                levelData = selected;
+                Debug.Log("[LevelManager] Уровень загружен: " + levelData.levelName);
+            }
+            // Очищаем, чтобы Retry не зависел от выбора из меню в будущем
+            PlayerPrefs.SetInt("CurrentLevelToLoad", -1);
+            PlayerPrefs.Save();
+        }
+
         if (gameHUD == null)
         {
             gameHUD = FindFirstObjectByType<GameUIController>();
@@ -46,15 +63,35 @@ public class LevelManager : MonoBehaviour
             Debug.LogError("[LevelManager] Environment Prefab не назначен! Перетащите GameInstance из Assets/GameObjects/ в поле Environment Prefab в Inspector.");
             return;
         }
-        if (dataObject == null)
-        {
-            Debug.Log("[LevelManager] Data Object не назначен — будет использован Data из GameInstance prefab.");
-        }
+        
         if (levelData == null)
         {
-            Debug.LogWarning("[LevelManager] Level Data не назначен. Будут использованы параметры по умолчанию. Создайте уровни через Tools → Create Default Levels.");
+            Debug.LogWarning("[LevelManager] Level Data не назначен. Будут использованы параметры по умолчанию.");
         }
+        
         StartLevel();
+    }
+
+    /// <summary>Вспомогательный метод поиска уровня по номеру</summary>
+    LevelData FindLevelByNumber(int number)
+    {
+        // 1. Ресурсы (билды)
+        LevelData[] allRes = Resources.LoadAll<LevelData>("Levels");
+        foreach (var ld in allRes) if (ld.levelNumber == number) return ld;
+
+#if UNITY_EDITOR
+        // 2. Editor путь
+        string[] guids = UnityEditor.AssetDatabase.FindAssets("t:LevelData", new[] { "Assets/LevelData" });
+        if (guids.Length == 0) guids = UnityEditor.AssetDatabase.FindAssets("t:LevelData");
+
+        foreach (string guid in guids)
+        {
+            string path = UnityEditor.AssetDatabase.GUIDToAssetPath(guid);
+            LevelData ld = UnityEditor.AssetDatabase.LoadAssetAtPath<LevelData>(path);
+            if (ld != null && ld.levelNumber == number) return ld;
+        }
+#endif
+        return null;
     }
 
     /// <summary>
@@ -112,6 +149,9 @@ public class LevelManager : MonoBehaviour
         currentGameManager.available_slots = 1;
         currentGameManager.total_slots = 1;
         currentGameManager.battle_place = 0.5f;
+
+        // Обновить текст во всех HUD сцены
+        UpdateAllLevelTexts();
 
         // Применить параметры уровня
         ApplyLevelData();
@@ -471,36 +511,7 @@ public class LevelManager : MonoBehaviour
     LevelData FindNextLevel()
     {
         if (levelData == null) return null;
-        int nextNumber = levelData.levelNumber + 1;
-
-        // 1. Ищем в Resources/Levels (для билда)
-        LevelData[] allLevels = Resources.LoadAll<LevelData>("Levels");
-        foreach (var ld in allLevels)
-        {
-            if (ld.levelNumber == nextNumber) return ld;
-        }
-
-#if UNITY_EDITOR
-        // 2. Ищем в Assets/LevelData/ (реальное расположение в проекте)
-        string[] guids = UnityEditor.AssetDatabase.FindAssets("t:LevelData", new[] { "Assets/LevelData" });
-
-        // 3. Если не нашли — ищем по всему проекту
-        if (guids.Length == 0)
-            guids = UnityEditor.AssetDatabase.FindAssets("t:LevelData");
-
-        foreach (string guid in guids)
-        {
-            string path = UnityEditor.AssetDatabase.GUIDToAssetPath(guid);
-            LevelData ld = UnityEditor.AssetDatabase.LoadAssetAtPath<LevelData>(path);
-            if (ld != null && ld.levelNumber == nextNumber)
-            {
-                Debug.Log($"[LM] Найден следующий уровень: {ld.levelName} (#{ld.levelNumber}) по пути {path}");
-                return ld;
-            }
-        }
-#endif
-        Debug.LogWarning($"[LM] Уровень #{nextNumber} не найден.");
-        return null;
+        return FindLevelByNumber(levelData.levelNumber + 1);
     }
 
     public void OnMainMenuButton()
@@ -535,5 +546,21 @@ public class LevelManager : MonoBehaviour
         }
         Time.timeScale = gameSpeed;
         if (gameHUD != null) gameHUD.UpdateSpeedText(gameSpeed);
+    }
+
+    void UpdateAllLevelTexts()
+    {
+        if (levelData == null) return;
+        string text = "Уровень " + levelData.levelNumber + ": " + levelData.levelName;
+        
+        // 1. Ищем через TMP_Text (TextMeshPro)
+        var allTMP = FindObjectsByType<TextMeshProUGUI>(FindObjectsSortMode.None);
+        foreach (var t in allTMP)
+        {
+            if (t.name != null && (t.name.Contains("LevelName") || (t.text != null && t.text.Contains("Уровень"))))
+            {
+                t.text = text;
+            }
+        }
     }
 }
