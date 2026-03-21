@@ -16,6 +16,7 @@ public class MainMenuController : MonoBehaviour
 
     [Header("UI Ресурсы")]
     public TextMeshProUGUI totalCoinsText;
+    public TextMeshProUGUI shopCoinsText;
 
     [Header("Уровни")]
     public Transform levelButtonsParent;
@@ -77,7 +78,9 @@ public class MainMenuController : MonoBehaviour
     public void UpdateUI()
     {
         int coins = PlayerPrefs.GetInt("PlayerCoins", 0);
-        if (totalCoinsText != null) totalCoinsText.text = "Монеты: " + coins;
+        string coinStr = coins.ToString("N0").Replace(",", " ");
+        if (totalCoinsText != null) totalCoinsText.text = coinStr;
+        if (shopCoinsText != null) shopCoinsText.text = coinStr;
 
         UpdateShopUI();
     }
@@ -203,22 +206,40 @@ public class MainMenuController : MonoBehaviour
     {
         bool unlocked = PlayerPrefs.GetInt(key, 0) >= 1;
         if (lvlTxt != null) lvlTxt.text = unlocked ? "ОТКРЫТ" : "ЗАКРЫТ";
-        if (priceTxt != null) priceTxt.text = unlocked ? "---" : cost.ToString();
+
+        if (priceTxt != null)
+        {
+            priceTxt.text = unlocked ? "---" : cost.ToString();
+
+            var buyBtn = priceTxt.transform.parent?.Find("BuyBtn")?.GetComponent<Button>();
+            if (buyBtn != null)
+            {
+                buyBtn.interactable = !unlocked && PlayerPrefs.GetInt("PlayerCoins", 0) >= cost;
+                var btnText = buyBtn.GetComponentInChildren<TextMeshProUGUI>();
+                if (btnText != null) btnText.text = unlocked ? "КУПЛЕНО" : cost.ToString();
+            }
+        }
     }
 
     void UpdateUpgradeItem(string key, TextMeshProUGUI lvlTxt, TextMeshProUGUI priceTxt)
     {
         int lvl = PlayerPrefs.GetInt(key, 0);
-        if (lvlTxt != null) lvlTxt.text = "УР: " + lvl;
+        bool isMax = lvl >= upgradeCosts.Length;
+        if (lvlTxt != null) lvlTxt.text = isMax ? "MAX" : "УР: " + lvl + "/" + upgradeCosts.Length;
 
-        if (lvl < upgradeCosts.Length)
+        int cost = isMax ? 0 : upgradeCosts[lvl];
+
+        if (priceTxt != null)
         {
-            if (priceTxt != null) priceTxt.text = upgradeCosts[lvl].ToString();
-        }
-        else
-        {
-            if (priceTxt != null) priceTxt.text = "MAX";
-            // Можно деактивировать кнопку покупки
+            priceTxt.text = isMax ? "---" : cost.ToString();
+
+            var buyBtn = priceTxt.transform.parent?.Find("BuyBtn")?.GetComponent<Button>();
+            if (buyBtn != null)
+            {
+                buyBtn.interactable = !isMax && PlayerPrefs.GetInt("PlayerCoins", 0) >= cost;
+                var btnText = buyBtn.GetComponentInChildren<TextMeshProUGUI>();
+                if (btnText != null) btnText.text = isMax ? "MAX" : cost.ToString();
+            }
         }
     }
 
